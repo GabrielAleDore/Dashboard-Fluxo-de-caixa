@@ -1,0 +1,98 @@
+/* ALERTS COMPONENT STYLES */
+.venc-panel {
+  background: var(--bg-panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: fadeUp .5s .3s ease both;
+}
+.venc-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.venc-today-badge {
+  font-size: 10px; font-weight: 700;
+  background: rgba(52,152,219,.15);
+  border: 1px solid rgba(52,152,219,.4);
+  color: var(--blue); border-radius: 20px;
+  padding: 3px 10px; letter-spacing: .5px;
+}
+
+.venc-filter-bar {
+  padding: 8px 16px; margin: 8px 16px;
+  background: rgba(52,152,219,.12); border: 1px solid rgba(52,152,219,.3);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--white);
+}
+.venc-filter-bar button {
+  background: none; border: none; color: var(--amber);
+  font-weight: 700; font-size: 11px; cursor: pointer; text-decoration: underline;
+}
+
+.venc-bands { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.venc-band {
+  display: flex; align-items: center;
+  padding: 10px 20px; gap: 12px;
+  transition: all .2s; cursor: pointer;
+  border-left: 3px solid transparent; user-select: none;
+}
+.venc-band:hover { background: rgba(255,255,255,.05); }
+.venc-band.active-filter {
+  background: rgba(52, 152, 219, 0.12) !important;
+  border-left: 3px solid var(--blue);
+}
+.venc-band.active-filter#band-vencido {
+  background: rgba(231, 76, 60, 0.15) !important;
+  border-left-color: #E74C3C;
+}
+.venc-band.active-filter#band-hoje {
+  background: rgba(243, 156, 18, 0.15) !important;
+  border-left-color: #F39C12;
+}
+.venc-band.active-filter#band-7d {
+  background: rgba(52, 152, 219, 0.15) !important;
+  border-left-color: #3498DB;
+}
+.venc-band.active-filter#band-30d {
+  background: rgba(46, 204, 113, 0.15) !important;
+  border-left-color: #2ECC71;
+}
+
+.venc-band-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.venc-band-info { flex: 1; }
+.venc-band-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px;
+}
+.venc-band-sub { font-size: 10px; color: var(--gray); }
+.venc-band-right { text-align: right; }
+.venc-band-val { font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+.venc-band-cnt { font-size: 10px; color: var(--gray); margin-top: 1px; }
+
+.venc-list-title {
+  padding: 12px 20px 8px; font-size: 11px; font-weight: 700;
+  color: var(--gray); text-transform: uppercase; letter-spacing: .6px;
+}
+.venc-list { overflow-y: auto; max-height: 260px; }
+.venc-item {
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(46,74,107,.25);
+  display: flex; align-items: center; gap: 10px;
+  transition: background .15s;
+}
+.venc-item:hover { background: rgba(52,152,219,.06); }
+.venc-item:last-child { border-bottom: none; }
+.venc-item-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.venc-item-info { flex: 1; min-width: 0; }
+.venc-item-credor {
+  font-size: 12px; font-weight: 600; color: var(--white);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.venc-item-date { font-size: 10px; color: var(--gray); margin-top: 1px; }
+.venc-item-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.venc-empty { padding: 32px 20px; text-align: center; color: var(--gray); font-size: 12px; }
