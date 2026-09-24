@@ -1,4 +1,4 @@
-/* ALERTS COMPONENT STYLES */
+/* ALERTS & SALDOS COMPONENT STYLES */
 .venc-panel {
   background: var(--bg-panel);
   border-radius: var(--radius);
@@ -8,7 +8,7 @@
   animation: fadeUp .5s .3s ease both;
 }
 .venc-header {
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px; flex-wrap: wrap;
@@ -37,7 +37,7 @@
 .venc-bands { padding: 6px 0; border-bottom: 1px solid var(--border); }
 .venc-band {
   display: flex; align-items: center;
-  padding: 10px 20px; gap: 12px;
+  padding: 9px 18px; gap: 12px;
   transition: all .2s; cursor: pointer;
   border-left: 3px solid transparent; user-select: none;
 }
@@ -64,7 +64,7 @@
 }
 
 .venc-band-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
 }
 .venc-band-info { flex: 1; min-width: 0; }
 .venc-band-label {
@@ -74,37 +74,98 @@
 }
 .venc-band-sub { font-size: 10px; color: var(--gray); white-space: nowrap; }
 .venc-band-right { text-align: right; flex-shrink: 0; }
-.venc-band-val { font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
+.venc-band-val { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; }
 .venc-band-cnt { font-size: 10px; color: var(--gray); margin-top: 1px; }
 
-.venc-list-title {
-  padding: 12px 16px 8px; font-size: 11px; font-weight: 700;
-  color: var(--gray); text-transform: uppercase; letter-spacing: .6px;
+/* TABELA DE SALDOS DIÁRIOS (SUBSTITUI PRÓXIMAS MOVIMENTAÇÕES) */
+.saldos-header-row {
+  padding: 10px 18px;
+  background: rgba(22, 35, 48, 0.85);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap;
 }
-.venc-list { overflow-y: auto; max-height: 260px; -webkit-overflow-scrolling: touch; }
-.venc-item {
-  padding: 10px 16px;
+.saldos-title {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--white); text-transform: uppercase; letter-spacing: .6px;
+  display: flex; align-items: center; gap: 6px;
+}
+.saldos-btn-reset-day {
+  background: rgba(52,152,219,.15); border: 1px solid rgba(52,152,219,.4);
+  color: var(--blue); border-radius: 12px;
+  padding: 2px 8px; font-size: 10.5px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.saldos-btn-reset-day:hover {
+  background: var(--blue); color: var(--white);
+}
+
+.saldos-table-wrap {
+  overflow-x: auto; overflow-y: auto;
+  max-height: 420px;
+  -webkit-overflow-scrolling: touch;
+}
+.saldos-table {
+  width: 100%; border-collapse: collapse; font-size: 11.5px;
+}
+.saldos-table thead th {
+  background: #192635;
+  color: var(--white); font-weight: 700;
+  padding: 9px 10px; text-align: left;
+  font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+  white-space: nowrap; position: sticky; top: 0; z-index: 2;
+  border-bottom: 1px solid var(--border);
+}
+.saldos-table thead th.num { text-align: right; }
+
+.saldos-table tbody tr.saldo-row {
   border-bottom: 1px solid rgba(46,74,107,.25);
-  display: flex; align-items: center; gap: 10px;
-  transition: background .15s;
+  transition: all .15s; cursor: pointer;
+  border-left: 3px solid transparent;
 }
-.venc-item:hover { background: rgba(52,152,219,.06); }
-.venc-item:last-child { border-bottom: none; }
-.venc-item-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.venc-item-info { flex: 1; min-width: 0; }
-.venc-item-credor {
-  font-size: 12px; font-weight: 600; color: var(--white);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.saldos-table tbody tr.saldo-row:hover {
+  background: rgba(52,152,219,.08);
 }
-.venc-item-date { font-size: 10px; color: var(--gray); margin-top: 1px; }
-.venc-item-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; flex-shrink: 0; }
-.venc-empty { padding: 28px 16px; text-align: center; color: var(--gray); font-size: 12px; }
+.saldos-table tbody tr.saldo-row.selected-day-row {
+  background: rgba(52, 152, 219, 0.22) !important;
+  border-left: 3px solid var(--blue);
+}
+.saldos-table tbody tr.saldo-row.selected-day-row td {
+  color: var(--white); font-weight: 600;
+}
+.saldos-table td {
+  padding: 8px 10px; color: var(--gray); white-space: nowrap;
+}
+.saldos-table td.dia-label {
+  color: var(--white); font-weight: 600;
+}
+.saldos-table td.num {
+  text-align: right; font-family: var(--font-mono); font-size: 11.5px;
+}
+.saldos-table td.green-val {
+  color: var(--green); text-align: right; font-family: var(--font-mono);
+}
+.saldos-table td.red-val {
+  color: var(--red); text-align: right; font-family: var(--font-mono);
+}
+
+.saldos-table tfoot td {
+  background: #162330; color: var(--white);
+  font-weight: 700; font-family: var(--font-mono);
+  padding: 10px 10px; font-size: 11.5px; text-align: right;
+  position: sticky; bottom: 0; z-index: 2;
+  border-top: 1px solid var(--border);
+}
+.saldos-table tfoot td:first-child {
+  text-align: left; font-family: var(--font-main); font-size: 10.5px;
+  color: var(--amber); text-transform: uppercase;
+}
 
 /* MOBILE RESPONSIVE */
 @media (max-width: 640px) {
   .venc-header { padding: 12px 14px; }
   .venc-band { padding: 8px 12px; gap: 10px; }
   .venc-band-val { font-size: 12px; }
-  .venc-list { max-height: 220px; }
-  .venc-item { padding: 8px 12px; }
+  .saldos-header-row { padding: 8px 12px; }
+  .saldos-table td, .saldos-table thead th { padding: 7px 8px; font-size: 11px; }
 }

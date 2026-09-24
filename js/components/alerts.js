@@ -1,6 +1,6 @@
 /**
- * ALERTS COMPONENT
- * Gerencia as faixas de vencimento, filtros interativos de urgência e mini-lista
+ * ALERTS & SALDOS COMPONENT
+ * Gerencia as faixas de vencimento e a nova Tabela de Saldos Diários agrupados por data
  */
 
 const AlertsComponent = {
@@ -8,6 +8,7 @@ const AlertsComponent = {
     if (!container) return;
     container.innerHTML = `
       <div class="venc-panel">
+        <!-- CABEÇALHO DO CARD -->
         <div class="venc-header">
           <div class="panel-title">
             <span class="dot" style="background:var(--amber)"></span>
@@ -70,9 +71,38 @@ const AlertsComponent = {
           </div>
         </div>
 
-        <!-- MINI-LISTA DE TÍTULOS -->
-        <div class="venc-list-title" id="venc-list-title">📋 Próximas movimentações</div>
-        <div class="venc-list" id="venc-list"></div>
+        <!-- TABELA DE SALDOS DIÁRIOS (SUBSTITUI PRÓXIMAS MOVIMENTAÇÕES) -->
+        <div class="saldos-header-row">
+          <div class="saldos-title">
+            <span>📋 Saldos Diários por Data</span>
+          </div>
+          <button class="saldos-btn-reset-day" id="btn-reset-day" onclick="AlertsComponent.selectDay(null)" style="display:none;" title="Exibir todo o período">
+            ✕ Ver Todos os Dias
+          </button>
+        </div>
+
+        <div class="saldos-table-wrap">
+          <table class="saldos-table" id="saldos-table">
+            <thead>
+              <tr>
+                <th>Dia</th>
+                <th>Data</th>
+                <th class="num">Crédito (R$)</th>
+                <th class="num">Débito (R$)</th>
+                <th class="num">Saldo (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="saldos-table-body"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">TOTAIS DO PERÍODO</td>
+                <td class="num green-val" id="foot-saldos-credito">—</td>
+                <td class="num red-val" id="foot-saldos-debito">—</td>
+                <td class="num" id="foot-saldos-final">—</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     `;
   },
@@ -108,6 +138,37 @@ const AlertsComponent = {
     }
     this.updateUI();
     App.applyFilters();
+  },
+
+  selectDay(dateKey) {
+    if (State.selectedDay === dateKey) {
+      State.selectedDay = null; // desmarca se clicar no mesmo
+    } else {
+      State.selectedDay = dateKey;
+    }
+
+    this.highlightSelectedDay();
+
+    const btnResetDay = document.getElementById('btn-reset-day');
+    if (btnResetDay) {
+      btnResetDay.style.display = State.selectedDay ? 'inline-block' : 'none';
+    }
+
+    if (typeof TableComponent !== 'undefined') {
+      TableComponent.update(State.filteredData);
+    }
+  },
+
+  highlightSelectedDay() {
+    const rows = document.querySelectorAll('.saldos-table tbody tr.saldo-row');
+    rows.forEach(r => {
+      const rowDate = r.getAttribute('data-date');
+      if (State.selectedDay && rowDate === State.selectedDay) {
+        r.classList.add('selected-day-row');
+      } else {
+        r.classList.remove('selected-day-row');
+      }
+    });
   },
 
   updateUI() {
@@ -182,66 +243,85 @@ const AlertsComponent = {
     if (el7dRange)  el7dRange.textContent  = `${Utils.formatShortDate(new Date(anchor.getTime() + 86400000))} → ${Utils.formatShortDate(d7)}`;
     if (el30dRange) el30dRange.textContent = `${Utils.formatShortDate(new Date(d7.getTime() + 86400000))} → ${Utils.formatShortDate(d30)}`;
 
-    // Mini-lista conforme alerta selecionado
-    let listItems = [];
-    let listTitle = '📋 Próximas movimentações';
+    // ── RENDERIZAÇÃO DA TABELA DE SALDOS DIÁRIOS ───────────────────
+    const saldosBody = document.getElementById('saldos-table-body');
+    if (!saldosBody) return;
 
-    if (State.selectedAlertFilter === 'vencido') {
-      listItems = [...vencidos].sort((a, b) => a.vencimento - b.vencimento);
-      listTitle = `🔴 Títulos Vencidos (${vencidos.length})`;
-    } else if (State.selectedAlertFilter === 'hoje') {
-      listItems = [...hoje].sort((a, b) => a.vencimento - b.vencimento);
-      listTitle = `🟡 Vencem Hoje (${hoje.length})`;
-    } else if (State.selectedAlertFilter === '7d') {
-      listItems = [...prox7].sort((a, b) => a.vencimento - b.vencimento);
-      listTitle = `🔵 Próximos 7 dias (${prox7.length})`;
-    } else if (State.selectedAlertFilter === '30d') {
-      listItems = [...prox30].sort((a, b) => a.vencimento - b.vencimento);
-      listTitle = `🟢 Próximos 30 dias (${prox30.length})`;
+    // Agrupa dados filtrados por data de vencimento
+    const byDate = {};
+    State.filteredData.forEach(r => {
+      const key = Utils.toInputDate(r.vencimento);
+      if (!byDate[key]) {
+        byDate[key] = {
+          dateObj: r.vencimento,
+          key,
+          credito: 0,
+          debito: 0
+        };
+      }
+      byDate[key].credito += r.entrada;
+      byDate[key].debito  += r.saida;
+    });
+
+    const sortedDates = Object.values(byDate).sort((a, b) => a.dateObj - b.dateObj);
+
+    // Se nenhuma data foi selecionada ainda, seleciona a primeira data disponível
+    if (!State.selectedDay && sortedDates.length > 0) {
+      State.selectedDay = sortedDates[0].key;
+    }
+
+    let runningSaldo = 0;
+    let totalCredito = 0;
+    let totalDebito  = 0;
+
+    const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+    saldosBody.innerHTML = '';
+
+    if (sortedDates.length === 0) {
+      saldosBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray);">Nenhum lançamento no período</td></tr>`;
     } else {
-      listItems = [...base]
-        .filter(r => r.saida > 0 && r.vencimento >= anchor)
-        .sort((a, b) => a.vencimento - b.vencimento)
-        .slice(0, 10);
-      listTitle = '📋 Próximas movimentações';
+      sortedDates.forEach(d => {
+        runningSaldo += (d.credito - d.debito);
+        totalCredito += d.credito;
+        totalDebito  += d.debito;
+
+        const isToday = Utils.toInputDate(d.dateObj) === Utils.toInputDate(anchor);
+        const dayOfWeek = isToday ? 'Hoje' : dayNames[d.dateObj.getDay()];
+        const isSelected = State.selectedDay === d.key;
+
+        const tr = document.createElement('tr');
+        tr.className = `saldo-row ${isSelected ? 'selected-day-row' : ''}`;
+        tr.setAttribute('data-date', d.key);
+        tr.onclick = () => AlertsComponent.selectDay(d.key);
+
+        tr.innerHTML = `
+          <td class="dia-label" style="${isToday ? 'color:var(--amber);font-weight:700;' : ''}">${dayOfWeek}</td>
+          <td>${Utils.formatDateBR(d.dateObj)}</td>
+          <td class="num green-val">${Utils.fmt(d.credito)}</td>
+          <td class="num red-val">${Utils.fmt(d.debito)}</td>
+          <td class="num ${runningSaldo >= 0 ? 'green-val' : 'red-val'}">${Utils.fmt(runningSaldo)}</td>
+        `;
+        saldosBody.appendChild(tr);
+      });
     }
 
-    const titleEl = document.getElementById('venc-list-title');
-    if (titleEl) titleEl.textContent = listTitle;
+    // Totais no rodapé
+    const footCredito = document.getElementById('foot-saldos-credito');
+    const footDebito  = document.getElementById('foot-saldos-debito');
+    const footFinal   = document.getElementById('foot-saldos-final');
 
-    const colorFor = r => {
-      if (r.vencimento < anchor) return '#E74C3C';
-      if (Utils.toInputDate(r.vencimento) === Utils.toInputDate(anchor)) return '#F39C12';
-      if (r.vencimento <= d7)  return '#3498DB';
-      if (r.vencimento <= d30) return '#2ECC71';
-      return '#A0B0C0';
-    };
-
-    const listEl = document.getElementById('venc-list');
-    if (!listEl) return;
-
-    if (!listItems.length) {
-      listEl.innerHTML = '<div class="venc-empty">✅ Sem movimentações correspondentes ao filtro</div>';
-      return;
+    if (footCredito) footCredito.textContent = Utils.fmt(totalCredito);
+    if (footDebito)  footDebito.textContent  = Utils.fmt(totalDebito);
+    if (footFinal) {
+      footFinal.textContent = Utils.fmt(runningSaldo);
+      footFinal.className   = `num ${runningSaldo >= 0 ? 'green-val' : 'red-val'}`;
     }
 
-    listEl.innerHTML = listItems.slice(0, 25).map(r => {
-      const col = colorFor(r);
-      const label = r.vencimento < anchor ? 'Vencido' :
-                    Utils.toInputDate(r.vencimento) === Utils.toInputDate(anchor) ? 'Hoje' :
-                    r.vencimento <= d7 ? `em ${Math.round((r.vencimento - anchor) / 86400000)}d` :
-                    Utils.formatShortDate(r.vencimento);
-      return `
-        <div class="venc-item">
-          <div class="venc-item-dot" style="background:${col}"></div>
-          <div class="venc-item-info">
-            <div class="venc-item-credor" title="${r.credor}">${r.credor}</div>
-            <div class="venc-item-date">${Utils.formatDateBR(r.vencimento)} · ${label} · ${r.parcela || '—'}</div>
-          </div>
-          <div class="venc-item-val" style="color:${col}">${Utils.fmt(r.saida)}</div>
-        </div>
-      `;
-    }).join('');
+    const btnResetDay = document.getElementById('btn-reset-day');
+    if (btnResetDay) {
+      btnResetDay.style.display = State.selectedDay ? 'inline-block' : 'none';
+    }
 
     this.updateUI();
   }

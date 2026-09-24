@@ -15,6 +15,7 @@ const State = {
   dateTo: null,
   selectedCredor: '',
   selectedAlertFilter: null, // 'vencido' | 'hoje' | '7d' | '30d' | null
+  selectedDay: null,          // 'YYYY-MM-DD' | null (dia selecionado na tabela de saldos)
   manualHideSaldo: false,
 
   // Cores personalizáveis (persistidas no localStorage)

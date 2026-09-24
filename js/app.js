@@ -146,6 +146,7 @@ const App = {
     if (searchInput) searchInput.value = '';
 
     State.selectedAlertFilter = null;
+    State.selectedDay         = null;
     State.manualHideSaldo     = false;
 
     const chk = document.getElementById('toggle-hide-saldo');
