@@ -107,14 +107,10 @@ const AlertsComponent = {
     `;
   },
 
-  getAnchor(baseList) {
-    const base = (baseList && baseList.length) ? baseList : State.allData;
+  getAnchor() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dataMin = base.reduce((m, r) => r.vencimento < m ? r.vencimento : m, (base[0] && base[0].vencimento) || today);
-    const anchor = today <= dataMin ? new Date(dataMin) : today;
-    anchor.setHours(0, 0, 0, 0);
-    return anchor;
+    return today;
   },
 
   matchesAlert(record, alertType, anchor) {
@@ -207,13 +203,13 @@ const AlertsComponent = {
 
   update(allData, selectedCredor) {
     const base = selectedCredor ? allData.filter(r => r.credor === selectedCredor) : allData;
-    const anchor = this.getAnchor(base);
+    const anchor = this.getAnchor();
     const d7  = new Date(anchor); d7.setDate(anchor.getDate() + 7);
     const d30 = new Date(anchor); d30.setDate(anchor.getDate() + 30);
 
     const badge = document.getElementById('venc-today-badge');
     if (badge) {
-      badge.textContent = '📅 ' + anchor.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      badge.textContent = '📅 Hoje: ' + anchor.toLocaleDateString('pt-BR');
     }
 
     const vencidos = base.filter(r => r.saida > 0 && r.vencimento < anchor);

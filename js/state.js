@@ -18,7 +18,8 @@ const State = {
   selectedDay: null,          // 'YYYY-MM-DD' | null (dia selecionado na tabela de saldos)
   manualHideSaldo: false,
 
-  // Cores personalizáveis (persistidas no localStorage)
+  // Cores personalizáveis e tema (persistidos no localStorage)
+  theme: localStorage.getItem('fc_theme') || 'dark', // 'dark' | 'light'
   chartColunasColor: localStorage.getItem('fc_colunas_color') || '#E74C3C',
   chartBarrasColor:  localStorage.getItem('fc_barras_color')  || '#F39C12',
 

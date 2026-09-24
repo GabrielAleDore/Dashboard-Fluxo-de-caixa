@@ -8,7 +8,7 @@
 
 .header {
   width: 100%;
-  background: linear-gradient(180deg, #18283B 0%, #132233 100%);
+  background: var(--header-bg);
   border-bottom: 1px solid var(--border);
   border-radius: 0;
   margin: 0;
@@ -19,22 +19,72 @@
   flex-wrap: wrap;
   gap: 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background .25s ease, border-color .25s ease;
 }
 
 .header-left {
+  display: flex;
+  align-items: center;
+}
+
+/* CONDOMÍNIO AGRÍCOLA FAMILIAR BACHINSKI BRANDING */
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  font-size: 26px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(46, 204, 113, 0.4));
+  user-select: none;
+  transition: transform .2s ease;
+}
+.brand-group:hover .brand-icon {
+  transform: scale(1.1) rotate(6deg);
+}
+
+.brand-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.header-title {
-  font-size: 20px;
+.brand-agro {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: -.5px;
-  color: var(--white);
+  letter-spacing: -.2px;
 }
-.header-title span { color: var(--blue); }
-.header-subtitle { font-size: 12px; color: var(--gray); font-weight: 400; }
+
+.brand-condominio {
+  color: var(--white);
+  font-weight: 700;
+  letter-spacing: -.2px;
+}
+
+.brand-highlight {
+  color: var(--green);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+body.light-theme .brand-condominio {
+  color: #0F172A;
+}
+body.light-theme .brand-highlight {
+  color: #059669;
+}
+
+.header-subtitle {
+  font-size: 11.5px;
+  color: var(--gray);
+  font-weight: 500;
+  letter-spacing: .2px;
+}
 
 .header-controls {
   display: flex;
@@ -61,6 +111,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.date-input-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.filter-input.date-click-anywhere {
+  cursor: pointer;
 }
 
 .filter-credor-row {
@@ -239,6 +297,63 @@
   white-space: nowrap;
 }
 .btn-reset:hover { border-color: var(--red); color: var(--red); }
+
+/* BOTÃO DE TEMA CLARO / ESCURO */
+.btn-theme-toggle {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.btn-theme-toggle:hover {
+  border-color: var(--blue);
+  background: rgba(52, 152, 219, 0.12);
+  transform: translateY(-1px);
+}
+.theme-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* OVERRIDES MODO CLARO PARA O CABEÇALHO */
+body.light-theme .header {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+body.light-theme .filter-input,
+body.light-theme .combobox-input-box,
+body.light-theme .btn-reset,
+body.light-theme .btn-theme-toggle {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  color: #0F172A;
+}
+body.light-theme .combobox-dropdown {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+body.light-theme .combobox-item {
+  color: #475569;
+}
+body.light-theme .combobox-item:hover,
+body.light-theme .combobox-item.highlighted {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+body.light-theme .combobox-item.all-option {
+  border-bottom: 1px solid #E2E8F0;
+  color: #0F172A;
+}
 
 /* MOBILE RESPONSIVE (SMARTPHONES & TABLETS) */
 @media (max-width: 820px) {

@@ -5,6 +5,8 @@
 
 const App = {
   init() {
+    this.initTheme();
+
     if (typeof ChartDataLabels !== 'undefined') {
       Chart.register(ChartDataLabels);
     }
@@ -18,6 +20,41 @@ const App = {
 
     // Configura eventos de upload e arrastar/soltar
     this.setupUploadHandlers();
+  },
+
+  loadDemoData() {
+    const demoCsv = `parcela;emissao;vencimento;credor;historico;moeda;entrada;saida;saldo
+101/01;10/09/2026;24/09/2026;ENEL DISTRIBUICAO;Conta de Energia Matriz;BRL;0,00;1250,50;0,00
+102/01;12/09/2026;24/09/2026;CLIENTE ABC LTDA;Recebimento de Fatura 445;BRL;8500,00;0,00;0,00
+103/01;15/09/2026;24/09/2026;POSTO IPIRANGA;Abastecimento de Frota;BRL;0,00;620,00;0,00
+104/01;15/09/2026;24/09/2026;CLIENTE DELTA SA;Serviços de Consultoria;BRL;3200,00;0,00;0,00
+105/01;16/09/2026;25/09/2026;FORNECEDOR XYZ;Compra de Materiais;BRL;0,00;4300,00;0,00
+106/01;18/09/2026;25/09/2026;CLIENTE ABC LTDA;Recebimento Mensalidade;BRL;5100,00;0,00;0,00
+107/01;10/09/2026;26/09/2026;BANCO DO BRASIL;Taxa de Manutenção;BRL;0,00;150,00;0,00
+108/01;20/09/2026;26/09/2026;MERCADO LIVRE;Equipamentos TI;BRL;0,00;890,00;0,00
+109/01;21/09/2026;26/09/2026;CLIENTE VIP TECH;Projeto Customizado;BRL;12000,00;0,00;0,00`;
+    const data = CsvParser.parse(demoCsv);
+    this.loadData(data);
+  },
+
+  initTheme() {
+    if (State.theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+  },
+
+  toggleTheme() {
+    State.theme = State.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('fc_theme', State.theme);
+    this.initTheme();
+    if (typeof HeaderComponent !== 'undefined' && HeaderComponent.updateThemeButton) {
+      HeaderComponent.updateThemeButton();
+    }
+    if (State.filteredData && State.filteredData.length > 0) {
+      ChartsComponent.update(State.filteredData);
+    }
   },
 
   setupUploadHandlers() {

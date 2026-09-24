@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gestão Financeira &amp; Fluxo de Caixa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Condomínio Agrícola Familiar Bachinski — Gestão Financeira &amp; Fluxo de Caixa</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
 
   <!-- Bibliotecas Externas -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <!-- Módulos de Estilo CSS -->
@@ -23,11 +27,12 @@
   <link rel="stylesheet" href="css/alerts.css">
   <link rel="stylesheet" href="css/table.css">
 </head>
+
 <body>
 
   <!-- TELA DE UPLOAD -->
   <div id="upload-overlay">
-    <div class="upload-logo">Fluxo<span>Caixa</span> BI</div>
+    <div class="upload-logo">🌾 Condomínio Agrícola Familiar <span style="color:var(--green)">Bachinski</span></div>
     <div class="upload-box" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">📊</div>
       <div class="upload-title">Carregar Base de Dados</div>
@@ -37,6 +42,10 @@
       </div>
       <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">
         📂 Selecionar Arquivo CSV
+      </button>
+      <button type="button" class="upload-demo-btn" id="btn-demo-data"
+        onclick="event.stopPropagation();App.loadDemoData()">
+        ⚡ Carregar Dados de Demonstração
       </button>
       <div class="upload-hint">Suporte a: separador vírgula ou ponto-e-vírgula · Encoding UTF-8 ou Latin-1</div>
     </div>
@@ -55,17 +64,17 @@
       <!-- 2. Cards de Indicadores Executivos -->
       <section id="kpi-container"></section>
 
-      <!-- 3. Gráficos Financeiros -->
-      <section id="charts-container"></section>
-
-      <!-- 4 e 5. Linha Inferior: Alertas de Vencimento e Detalhamento -->
+      <!-- 3. Linha de Operações: Alertas de Vencimento, Saldos e Contas a Receber/Pagar -->
       <section class="bottom-row">
-        <!-- 4. Alertas de Vencimento -->
+        <!-- Alertas de Vencimento e Saldos Diários -->
         <aside id="alerts-container"></aside>
 
-        <!-- 5. Detalhamento de Lançamentos -->
+        <!-- Contas a Receber (Superior) e Contas a Pagar (Inferior) -->
         <div id="table-container"></div>
       </section>
+
+      <!-- 4. Gráfico de Desembolsos Programados por Vencimento (Largura Total) -->
+      <section id="charts-container"></section>
     </main>
   </div>
 
@@ -81,4 +90,5 @@
   <script src="js/app.js"></script>
 
 </body>
+
 </html>

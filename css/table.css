@@ -83,7 +83,7 @@
   table-layout: fixed;
 }
 .mov-table thead th {
-  background: #192635;
+  background: var(--table-header-bg);
   color: var(--white);
   font-weight: 700;
   padding: 8px 8px;
@@ -222,4 +222,36 @@
     flex-wrap: wrap;
     justify-content: space-between;
   }
+}
+
+/* OVERRIDES MODO CLARO PARA CONTAS A RECEBER E PAGAR */
+body.light-theme .mov-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+body.light-theme .mov-card-header {
+  border-bottom: 1px solid #E2E8F0;
+}
+body.light-theme .mov-table thead th {
+  color: #1E293B;
+  border-bottom: 1px solid #CBD5E1;
+}
+body.light-theme .mov-table tbody tr {
+  border-bottom: 1px solid #E2E8F0;
+}
+body.light-theme .mov-table tbody tr:nth-child(even) {
+  background: #F8FAFC;
+}
+body.light-theme .mov-table tbody tr:hover {
+  background: #F1F5F9;
+}
+body.light-theme .mov-table td.bold {
+  color: #0F172A;
+}
+body.light-theme .mov-footer {
+  background: #F8FAFC;
+  border-top: 1px solid #E2E8F0;
+}
+body.light-theme .mov-total-val {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
 }

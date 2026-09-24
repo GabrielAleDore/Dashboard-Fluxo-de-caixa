@@ -1,6 +1,6 @@
 /**
  * HEADER COMPONENT
- * Renderiza e gerencia o cabeçalho, logo, filtros de período e credor pesquisável (combobox)
+ * Renderiza e gerencia a identidade Condomínio Agrícola Familiar Bachinski, logo, filtros de período e credor pesquisável (combobox)
  */
 
 const HeaderComponent = {
@@ -12,16 +12,28 @@ const HeaderComponent = {
     container.innerHTML = `
       <div class="header">
         <div class="header-left">
-          <div class="header-title">Gestão Financeira &amp; <span>Fluxo de Caixa</span></div>
-          <div class="header-subtitle">Projeção de Pagamentos e Recebimentos por Vencimento</div>
+          <div class="brand-group">
+            <span class="brand-icon" title="Condomínio Agrícola Familiar Bachinski">🌾</span>
+            <div class="brand-text">
+              <div class="header-title brand-agro">
+                <span class="brand-condominio">Condomínio Agrícola Familiar</span>
+                <span class="brand-highlight">Bachinski</span>
+              </div>
+              <div class="header-subtitle">Gestão Financeira &amp; Fluxo de Caixa</div>
+            </div>
+          </div>
         </div>
         <div class="header-controls">
           <div class="filter-group filter-group-date">
             <span class="filter-label">📅 Período (Vencimento)</span>
             <div class="filter-date-row">
-              <input type="date" id="date-from" class="filter-input" title="Data inicial">
+              <div class="date-input-wrap">
+                <input type="date" id="date-from" class="filter-input date-click-anywhere" title="Clique para escolher a data ou digite">
+              </div>
               <span class="filter-sep">→</span>
-              <input type="date" id="date-to" class="filter-input" title="Data final">
+              <div class="date-input-wrap">
+                <input type="date" id="date-to" class="filter-input date-click-anywhere" title="Clique para escolher a data ou digite">
+              </div>
             </div>
           </div>
           <div class="filter-group filter-group-credor">
@@ -30,7 +42,7 @@ const HeaderComponent = {
               <div class="combobox-wrapper" id="combobox-credor">
                 <div class="combobox-input-box" id="combobox-input-box">
                   <span class="combobox-search-icon">🔍</span>
-                  <input type="text" id="credor-input" class="combobox-input" placeholder="Buscar ou selecionar credor..." autocomplete="off">
+                  <input type="text" id="credor-input" class="combobox-input" placeholder="Buscar ou selecionar..." autocomplete="off">
                   <button type="button" class="combobox-btn-clear" id="credor-clear-btn" title="Limpar seleção" style="display:none;">✕</button>
                   <span class="combobox-arrow">▾</span>
                 </div>
@@ -42,17 +54,49 @@ const HeaderComponent = {
               <button class="btn-reset" id="btn-reset-filters" title="Limpar todos os filtros">↺ Limpar</button>
             </div>
           </div>
+          <div class="filter-group filter-group-theme">
+            <span class="filter-label">Tema</span>
+            <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="App.toggleTheme()" title="Alternar entre modo claro e escuro">
+              <span class="theme-icon" id="theme-icon">☀️</span>
+              <span class="theme-text" id="theme-text">Modo Claro</span>
+            </button>
+          </div>
         </div>
       </div>
     `;
 
     this.bindEvents();
+    this.updateThemeButton();
+  },
+
+  updateThemeButton() {
+    const iconEl = document.getElementById('theme-icon');
+    const textEl = document.getElementById('theme-text');
+    const isLight = State.theme === 'light';
+    if (iconEl) iconEl.textContent = isLight ? '🌙' : '☀️';
+    if (textEl) textEl.textContent = isLight ? 'Modo Escuro' : 'Modo Claro';
   },
 
   bindEvents() {
     const fromInput = document.getElementById('date-from');
     const toInput   = document.getElementById('date-to');
     const resetBtn  = document.getElementById('btn-reset-filters');
+
+    // Filtros de data: abrir seletor visual em qualquer clique, mas permitir digitação manual
+    const setupDatePicker = (input) => {
+      if (!input) return;
+      input.addEventListener('click', () => {
+        if (typeof input.showPicker === 'function') {
+          try {
+            input.showPicker();
+          } catch (e) {
+            // Ignora se o picker nativo já estiver aberto
+          }
+        }
+      });
+    };
+    setupDatePicker(fromInput);
+    setupDatePicker(toInput);
 
     if (fromInput) {
       fromInput.addEventListener('change', () => {
@@ -77,11 +121,26 @@ const HeaderComponent = {
       });
     }
 
-    // Eventos do Combobox Pesquisável
+    // Eventos do Combobox Pesquisável: abre ao clicar em QUALQUER ponto
     const input      = document.getElementById('credor-input');
     const inputBox   = document.getElementById('combobox-input-box');
     const clearBtn   = document.getElementById('credor-clear-btn');
     const wrapper    = document.getElementById('combobox-credor');
+
+    const triggerOpen = () => {
+      this.openDropdown();
+      this.renderDropdown(input ? input.value : '');
+      if (input && document.activeElement !== input) {
+        input.focus();
+      }
+    };
+
+    if (inputBox) {
+      inputBox.addEventListener('click', e => {
+        if (e.target.id === 'credor-clear-btn') return;
+        triggerOpen();
+      });
+    }
 
     if (input) {
       input.addEventListener('focus', () => {
@@ -105,16 +164,6 @@ const HeaderComponent = {
             const val = firstItem.getAttribute('data-value') || '';
             this.selectCredor(val);
           }
-        }
-      });
-    }
-
-    if (inputBox) {
-      inputBox.addEventListener('click', e => {
-        if (e.target.id === 'credor-clear-btn') return;
-        if (!this.isOpen) {
-          this.openDropdown();
-          this.renderDropdown(input ? input.value : '');
         }
       });
     }
