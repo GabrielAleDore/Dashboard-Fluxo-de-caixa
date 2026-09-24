@@ -21,11 +21,11 @@ const TableComponent = {
           <table class="mov-table">
             <thead>
               <tr>
-                <th>Documento</th>
-                <th class="bold">Favorecido (Cliente)</th>
-                <th>Descrição / Histórico</th>
-                <th>Prev. / Venc.</th>
-                <th class="num">Valor (R$)</th>
+                <th style="width: 78px;">Documento</th>
+                <th class="bold" style="width: 28%;">Favorecido</th>
+                <th style="width: 38%;">Descrição / Histórico</th>
+                <th style="width: 82px;">Vencimento</th>
+                <th class="num" style="width: 105px;">Valor (R$)</th>
               </tr>
             </thead>
             <tbody id="table-receber-body"></tbody>
@@ -53,11 +53,11 @@ const TableComponent = {
           <table class="mov-table">
             <thead>
               <tr>
-                <th>Documento</th>
-                <th class="bold">Favorecido (Fornecedor)</th>
-                <th>Descrição / Histórico</th>
-                <th>Prev. / Venc.</th>
-                <th class="num">Valor (R$)</th>
+                <th style="width: 78px;">Documento</th>
+                <th class="bold" style="width: 28%;">Favorecido</th>
+                <th style="width: 38%;">Descrição / Histórico</th>
+                <th style="width: 82px;">Vencimento</th>
+                <th class="num" style="width: 105px;">Valor (R$)</th>
               </tr>
             </thead>
             <tbody id="table-pagar-body"></tbody>
@@ -94,18 +94,18 @@ const TableComponent = {
     pagarRows.sort((a, b) => a.vencimento - b.vencimento || a.credor.localeCompare(b.credor));
 
     // Atualização de badges de data
-    let badgeText = '📅 Todo o Período';
+    let badgeHtml = '📅 Todo o Período';
     if (selectedDay) {
       const [y, m, d] = selectedDay.split('-');
       const dObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
       const dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-      badgeText = `📅 ${dayNames[dObj.getDay()]}, ${Utils.formatDateBR(dObj)}`;
+      badgeHtml = `<span>📅 ${dayNames[dObj.getDay()]}, ${Utils.formatDateBR(dObj)}</span><button class="btn-clear-day-inline" onclick="AlertsComponent.selectDay(null)" title="Limpar seleção e exibir todos os dias">✕ Limpar</button>`;
     }
 
     const badgeRec = document.getElementById('badge-receber-day');
     const badgePag = document.getElementById('badge-pagar-day');
-    if (badgeRec) badgeRec.textContent = badgeText;
-    if (badgePag) badgePag.textContent = badgeText;
+    if (badgeRec) badgeRec.innerHTML = badgeHtml;
+    if (badgePag) badgePag.innerHTML = badgeHtml;
 
     // ── RENDER CONTAS A RECEBER ─────────────────────────────────
     const tbodyReceber = document.getElementById('table-receber-body');

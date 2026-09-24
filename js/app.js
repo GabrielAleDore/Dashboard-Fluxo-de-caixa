@@ -139,6 +139,9 @@ const App = {
       HeaderComponent.setDateRange(dates[0], dates[dates.length - 1]);
     }
 
+    if (typeof HeaderComponent !== 'undefined' && HeaderComponent.resetCredor) {
+      HeaderComponent.resetCredor();
+    }
     const credSel = document.getElementById('credor-filter');
     if (credSel) credSel.value = '';
 

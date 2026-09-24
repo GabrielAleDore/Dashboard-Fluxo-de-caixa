@@ -91,36 +91,58 @@
   display: flex; align-items: center; gap: 6px;
 }
 .saldos-btn-reset-day {
-  background: rgba(52,152,219,.15); border: 1px solid rgba(52,152,219,.4);
-  color: var(--blue); border-radius: 12px;
-  padding: 2px 8px; font-size: 10.5px; font-weight: 600;
-  cursor: pointer; transition: all .2s;
+  background: rgba(231, 76, 60, 0.16);
+  border: 1px solid rgba(231, 76, 60, 0.45);
+  color: #ff7675;
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .saldos-btn-reset-day:hover {
-  background: var(--blue); color: var(--white);
+  background: #e74c3c;
+  color: #fff;
+  border-color: #e74c3c;
+  transform: translateY(-1px);
 }
 
 .saldos-table-wrap {
-  overflow-x: auto; overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   max-height: 420px;
   -webkit-overflow-scrolling: touch;
 }
 .saldos-table {
-  width: 100%; border-collapse: collapse; font-size: 11.5px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
 }
 .saldos-table thead th {
   background: #192635;
-  color: var(--white); font-weight: 700;
-  padding: 9px 10px; text-align: left;
-  font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
-  white-space: nowrap; position: sticky; top: 0; z-index: 2;
+  color: var(--white);
+  font-weight: 700;
+  padding: 8px 6px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   border-bottom: 1px solid var(--border);
 }
 .saldos-table thead th.num { text-align: right; }
 
 .saldos-table tbody tr.saldo-row {
   border-bottom: 1px solid rgba(46,74,107,.25);
-  transition: all .15s; cursor: pointer;
+  transition: all .15s;
+  cursor: pointer;
   border-left: 3px solid transparent;
 }
 .saldos-table tbody tr.saldo-row:hover {
@@ -131,34 +153,64 @@
   border-left: 3px solid var(--blue);
 }
 .saldos-table tbody tr.saldo-row.selected-day-row td {
-  color: var(--white); font-weight: 600;
+  color: var(--white);
+  font-weight: 600;
 }
 .saldos-table td {
-  padding: 8px 10px; color: var(--gray); white-space: nowrap;
+  padding: 6.5px 6px;
+  color: var(--gray);
+  white-space: nowrap;
+  font-size: 11px;
 }
 .saldos-table td.dia-label {
-  color: var(--white); font-weight: 600;
+  color: var(--white);
+  font-weight: 600;
+  font-size: 10.5px;
 }
 .saldos-table td.num {
-  text-align: right; font-family: var(--font-mono); font-size: 11.5px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 .saldos-table td.green-val {
-  color: var(--green); text-align: right; font-family: var(--font-mono);
+  color: var(--green);
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 .saldos-table td.red-val {
-  color: var(--red); text-align: right; font-family: var(--font-mono);
+  color: var(--red);
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
 }
 
 .saldos-table tfoot td {
-  background: #162330; color: var(--white);
-  font-weight: 700; font-family: var(--font-mono);
-  padding: 10px 10px; font-size: 11.5px; text-align: right;
-  position: sticky; bottom: 0; z-index: 2;
+  background: #162330;
+  color: var(--white);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 8px 6px;
+  font-size: 11px;
+  text-align: right;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   border-top: 1px solid var(--border);
 }
 .saldos-table tfoot td:first-child {
-  text-align: left; font-family: var(--font-main); font-size: 10.5px;
-  color: var(--amber); text-transform: uppercase;
+  text-align: left;
+  font-family: var(--font-main);
+  font-size: 10px;
+  color: var(--amber);
+  text-transform: uppercase;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .saldos-table-wrap {
+    overflow-x: auto;
+  }
 }
 
 /* MOBILE RESPONSIVE */

@@ -76,8 +76,8 @@ const AlertsComponent = {
           <div class="saldos-title">
             <span>📋 Saldos Diários por Data</span>
           </div>
-          <button class="saldos-btn-reset-day" id="btn-reset-day" onclick="AlertsComponent.selectDay(null)" style="display:none;" title="Exibir todo o período">
-            ✕ Ver Todos os Dias
+          <button class="saldos-btn-reset-day" id="btn-reset-day" onclick="AlertsComponent.selectDay(null)" style="display:none;" title="Limpar seleção e exibir todos os dias">
+            ✕ Limpar Seleção
           </button>
         </div>
 
@@ -85,11 +85,11 @@ const AlertsComponent = {
           <table class="saldos-table" id="saldos-table">
             <thead>
               <tr>
-                <th>Dia</th>
-                <th>Data</th>
-                <th class="num">Crédito (R$)</th>
-                <th class="num">Débito (R$)</th>
-                <th class="num">Saldo (R$)</th>
+                <th style="width:48px;">Dia</th>
+                <th style="width:72px;">Data</th>
+                <th class="num">Crédito</th>
+                <th class="num">Débito</th>
+                <th class="num">Saldo</th>
               </tr>
             </thead>
             <tbody id="saldos-table-body"></tbody>
@@ -141,21 +141,24 @@ const AlertsComponent = {
   },
 
   selectDay(dateKey) {
-    if (State.selectedDay === dateKey) {
-      State.selectedDay = null; // desmarca se clicar no mesmo
+    if (State.selectedDay === dateKey || dateKey === null) {
+      State.selectedDay = null; // desmarca se clicar no mesmo ou se clicar em limpar
     } else {
       State.selectedDay = dateKey;
     }
 
     this.highlightSelectedDay();
-
-    const btnResetDay = document.getElementById('btn-reset-day');
-    if (btnResetDay) {
-      btnResetDay.style.display = State.selectedDay ? 'inline-block' : 'none';
-    }
+    this.updateResetButton();
 
     if (typeof TableComponent !== 'undefined') {
       TableComponent.update(State.filteredData);
+    }
+  },
+
+  updateResetButton() {
+    const btnResetDay = document.getElementById('btn-reset-day');
+    if (btnResetDay) {
+      btnResetDay.style.display = State.selectedDay ? 'inline-flex' : 'none';
     }
   },
 
@@ -265,9 +268,9 @@ const AlertsComponent = {
 
     const sortedDates = Object.values(byDate).sort((a, b) => a.dateObj - b.dateObj);
 
-    // Se nenhuma data foi selecionada ainda, seleciona a primeira data disponível
-    if (!State.selectedDay && sortedDates.length > 0) {
-      State.selectedDay = sortedDates[0].key;
+    // Se a data selecionada anteriormente não estiver mais nos dados filtrados, reseta
+    if (State.selectedDay && !sortedDates.some(d => d.key === State.selectedDay)) {
+      State.selectedDay = null;
     }
 
     let runningSaldo = 0;
@@ -320,7 +323,7 @@ const AlertsComponent = {
 
     const btnResetDay = document.getElementById('btn-reset-day');
     if (btnResetDay) {
-      btnResetDay.style.display = State.selectedDay ? 'inline-block' : 'none';
+      btnResetDay.style.display = State.selectedDay ? 'inline-flex' : 'none';
     }
 
     this.updateUI();
