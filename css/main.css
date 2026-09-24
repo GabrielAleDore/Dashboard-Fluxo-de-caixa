@@ -24,6 +24,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* UPLOAD OVERLAY */
@@ -33,13 +34,14 @@ body {
   z-index: 1000;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 24px; padding: 24px;
+  gap: 20px; padding: 16px;
 }
 #upload-overlay.hidden { display: none; }
 
 .upload-logo {
-  font-size: 28px; font-weight: 800;
+  font-size: 26px; font-weight: 800;
   letter-spacing: -1px; color: var(--white);
+  text-align: center;
 }
 .upload-logo span { color: var(--blue); }
 
@@ -47,7 +49,7 @@ body {
   border: 2px dashed var(--border);
   border-radius: var(--radius);
   background: var(--bg-panel);
-  padding: 48px 40px;
+  padding: 36px 24px;
   text-align: center;
   max-width: 480px; width: 100%;
   cursor: pointer;
@@ -58,17 +60,18 @@ body {
   background: rgba(52, 152, 219, 0.08);
   transform: translateY(-2px);
 }
-.upload-icon { font-size: 48px; margin-bottom: 16px; }
+.upload-icon { font-size: 42px; margin-bottom: 12px; }
 .upload-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-.upload-sub { font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 24px; }
+.upload-sub { font-size: 12.5px; color: var(--gray); line-height: 1.5; margin-bottom: 20px; }
 .upload-btn {
   background: var(--blue); color: var(--white);
   border: none; border-radius: var(--radius-sm);
-  padding: 12px 28px; font-size: 14px; font-weight: 600;
+  padding: 12px 24px; font-size: 14px; font-weight: 600;
   cursor: pointer; transition: background .2s;
+  width: 100%; max-width: 280px;
 }
 .upload-btn:hover { background: #2980B9; }
-.upload-hint { font-size: 11px; color: var(--gray); margin-top: 16px; opacity: .7; }
+.upload-hint { font-size: 11px; color: var(--gray); margin-top: 14px; opacity: .7; line-height: 1.4; }
 #file-input { display: none; }
 
 /* LOADING BAR */
@@ -84,9 +87,9 @@ body {
 #dashboard.visible { display: flex; }
 
 .content {
-  flex: 1; padding: 24px;
+  flex: 1; padding: 20px;
   display: flex; flex-direction: column;
-  gap: 20px; max-width: 1600px;
+  gap: 16px; max-width: 1600px;
   width: 100%; margin: 0 auto;
 }
 
@@ -96,7 +99,13 @@ body {
   gap: 16px;
   align-items: start;
 }
-@media (max-width: 1200px) { .bottom-row { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) {
+  .bottom-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .content { padding: 12px; gap: 14px; }
+}
 
 /* ANIMATIONS */
 @keyframes fadeUp {

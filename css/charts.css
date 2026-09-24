@@ -54,6 +54,16 @@
 
 .chart-wrap { position: relative; flex: 1; min-height: 240px; }
 
+/* TABLET & MOBILE RESPONSIVE */
 @media (max-width: 1100px) {
   .charts-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .chart-panel { padding: 14px 12px; gap: 10px; }
+  .chart-panel-header {
+    gap: 8px;
+  }
+  .panel-title { font-size: 12px; }
+  .chart-wrap { min-height: 220px; height: 230px; }
 }

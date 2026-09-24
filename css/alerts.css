@@ -11,6 +11,7 @@
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap;
 }
 .venc-today-badge {
   font-size: 10px; font-weight: 700;
@@ -21,18 +22,19 @@
 }
 
 .venc-filter-bar {
-  padding: 8px 16px; margin: 8px 16px;
+  padding: 8px 14px; margin: 8px 14px;
   background: rgba(52,152,219,.12); border: 1px solid rgba(52,152,219,.3);
   border-radius: var(--radius-sm);
   display: flex; align-items: center; justify-content: space-between;
-  font-size: 11px; color: var(--white);
+  font-size: 11px; color: var(--white); gap: 6px;
 }
 .venc-filter-bar button {
   background: none; border: none; color: var(--amber);
   font-weight: 700; font-size: 11px; cursor: pointer; text-decoration: underline;
+  white-space: nowrap;
 }
 
-.venc-bands { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.venc-bands { padding: 6px 0; border-bottom: 1px solid var(--border); }
 .venc-band {
   display: flex; align-items: center;
   padding: 10px 20px; gap: 12px;
@@ -64,23 +66,24 @@
 .venc-band-dot {
   width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
 }
-.venc-band-info { flex: 1; }
+.venc-band-info { flex: 1; min-width: 0; }
 .venc-band-label {
   font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.venc-band-sub { font-size: 10px; color: var(--gray); }
-.venc-band-right { text-align: right; }
+.venc-band-sub { font-size: 10px; color: var(--gray); white-space: nowrap; }
+.venc-band-right { text-align: right; flex-shrink: 0; }
 .venc-band-val { font-family: var(--font-mono); font-size: 13px; font-weight: 700; }
 .venc-band-cnt { font-size: 10px; color: var(--gray); margin-top: 1px; }
 
 .venc-list-title {
-  padding: 12px 20px 8px; font-size: 11px; font-weight: 700;
+  padding: 12px 16px 8px; font-size: 11px; font-weight: 700;
   color: var(--gray); text-transform: uppercase; letter-spacing: .6px;
 }
-.venc-list { overflow-y: auto; max-height: 260px; }
+.venc-list { overflow-y: auto; max-height: 260px; -webkit-overflow-scrolling: touch; }
 .venc-item {
-  padding: 10px 20px;
+  padding: 10px 16px;
   border-bottom: 1px solid rgba(46,74,107,.25);
   display: flex; align-items: center; gap: 10px;
   transition: background .15s;
@@ -95,4 +98,13 @@
 }
 .venc-item-date { font-size: 10px; color: var(--gray); margin-top: 1px; }
 .venc-item-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; flex-shrink: 0; }
-.venc-empty { padding: 32px 20px; text-align: center; color: var(--gray); font-size: 12px; }
+.venc-empty { padding: 28px 16px; text-align: center; color: var(--gray); font-size: 12px; }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 640px) {
+  .venc-header { padding: 12px 14px; }
+  .venc-band { padding: 8px 12px; gap: 10px; }
+  .venc-band-val { font-size: 12px; }
+  .venc-list { max-height: 220px; }
+  .venc-item { padding: 8px 12px; }
+}

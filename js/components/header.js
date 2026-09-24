@@ -13,23 +13,22 @@ const HeaderComponent = {
           <div class="header-subtitle">Projeção de Pagamentos e Recebimentos por Vencimento</div>
         </div>
         <div class="header-controls">
-          <div class="filter-group">
+          <div class="filter-group filter-group-date">
             <span class="filter-label">📅 Período (Vencimento)</span>
             <div class="filter-date-row">
-              <input type="date" id="date-from" class="filter-input" style="min-width:130px">
+              <input type="date" id="date-from" class="filter-input" title="Data inicial">
               <span class="filter-sep">→</span>
-              <input type="date" id="date-to" class="filter-input" style="min-width:130px">
+              <input type="date" id="date-to" class="filter-input" title="Data final">
             </div>
           </div>
-          <div class="filter-group">
+          <div class="filter-group filter-group-credor">
             <span class="filter-label">🏢 Credor</span>
-            <select id="credor-filter" class="filter-select" style="min-width:200px">
-              <option value="">Todos os Credores</option>
-            </select>
-          </div>
-          <div class="filter-group" style="justify-content:flex-end">
-            <span class="filter-label">&nbsp;</span>
-            <button class="btn-reset" id="btn-reset-filters">↺ Limpar Filtros</button>
+            <div class="filter-credor-row">
+              <select id="credor-filter" class="filter-select">
+                <option value="">Todos os Credores</option>
+              </select>
+              <button class="btn-reset" id="btn-reset-filters" title="Limpar todos os filtros">↺ Limpar</button>
+            </div>
           </div>
         </div>
       </div>

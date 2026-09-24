@@ -38,7 +38,10 @@
 }
 .table-search:focus { border-color: var(--blue); }
 
-.table-wrap { overflow: auto; flex: 1; }
+.table-wrap {
+  overflow: auto; flex: 1;
+  -webkit-overflow-scrolling: touch;
+}
 table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 thead th {
   background: var(--border);
@@ -72,7 +75,7 @@ tfoot td:first-child {
 
 /* PAGINATION */
 .table-footer {
-  padding: 12px 24px; border-top: 1px solid var(--border);
+  padding: 12px 20px; border-top: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
   font-size: 12px; color: var(--gray);
 }
@@ -87,3 +90,26 @@ tfoot td:first-child {
 .page-btn:hover { border-color: var(--blue); color: var(--blue); }
 .page-btn.active { background: var(--blue); border-color: var(--blue); color: var(--white); }
 .page-btn:disabled { opacity: .4; cursor: default; }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .table-header {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .table-search {
+    width: 100% !important;
+  }
+  .table-footer {
+    padding: 10px 14px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
