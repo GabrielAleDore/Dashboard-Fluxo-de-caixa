@@ -19,13 +19,13 @@
     src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <!-- Módulos de Estilo CSS -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/kpis.css">
-  <link rel="stylesheet" href="css/charts.css">
-  <link rel="stylesheet" href="css/alerts.css">
-  <link rel="stylesheet" href="css/table.css">
+  <!-- Módulos de Estilo CSS (com cache busting) -->
+  <link rel="stylesheet" href="css/main.css?v=2.1">
+  <link rel="stylesheet" href="css/header.css?v=2.1">
+  <link rel="stylesheet" href="css/kpis.css?v=2.1">
+  <link rel="stylesheet" href="css/charts.css?v=2.1">
+  <link rel="stylesheet" href="css/alerts.css?v=2.1">
+  <link rel="stylesheet" href="css/table.css?v=2.1">
 </head>
 
 <body>
@@ -42,10 +42,6 @@
       </div>
       <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">
         📂 Selecionar Arquivo CSV
-      </button>
-      <button type="button" class="upload-demo-btn" id="btn-demo-data"
-        onclick="event.stopPropagation();App.loadDemoData()">
-        ⚡ Carregar Dados de Demonstração
       </button>
       <div class="upload-hint">Suporte a: separador vírgula ou ponto-e-vírgula · Encoding UTF-8 ou Latin-1</div>
     </div>
@@ -78,16 +74,16 @@
     </main>
   </div>
 
-  <!-- SCRIPTS MODULARES -->
-  <script src="js/utils.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/components/header.js"></script>
-  <script src="js/components/kpi-cards.js"></script>
-  <script src="js/components/charts.js"></script>
-  <script src="js/components/alerts.js"></script>
-  <script src="js/components/table.js"></script>
-  <script src="js/csv-parser.js"></script>
-  <script src="js/app.js"></script>
+  <!-- SCRIPTS MODULARES (com cache busting) -->
+  <script src="js/utils.js?v=2.1"></script>
+  <script src="js/state.js?v=2.1"></script>
+  <script src="js/components/header.js?v=2.1"></script>
+  <script src="js/components/kpi-cards.js?v=2.1"></script>
+  <script src="js/components/charts.js?v=2.1"></script>
+  <script src="js/components/alerts.js?v=2.1"></script>
+  <script src="js/components/table.js?v=2.1"></script>
+  <script src="js/csv-parser.js?v=2.1"></script>
+  <script src="js/app.js?v=2.1"></script>
 
 </body>
 
