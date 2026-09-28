@@ -232,7 +232,8 @@ const AlertsComponent = {
   },
 
   update(allData, selectedCredor) {
-    const base = selectedCredor ? allData.filter(r => r.credor === selectedCredor) : allData;
+    const rawBase = selectedCredor ? allData.filter(r => r.credor === selectedCredor) : allData;
+    const base = State.getActiveData(rawBase);
     const anchor = this.getAnchor();
     const d7  = new Date(anchor); d7.setDate(anchor.getDate() + 7);
     const d30 = new Date(anchor); d30.setDate(anchor.getDate() + 30);
@@ -276,9 +277,10 @@ const AlertsComponent = {
     const saldosBody = document.getElementById('saldos-table-body');
     if (!saldosBody) return;
 
-    // Agrupa dados filtrados por data de vencimento
+    // Agrupa dados filtrados ativos por data de vencimento
+    const activeFiltered = State.getActiveData(State.filteredData);
     const byDate = {};
-    State.filteredData.forEach(r => {
+    activeFiltered.forEach(r => {
       const key = Utils.toInputDate(r.vencimento);
       if (!byDate[key]) {
         byDate[key] = {

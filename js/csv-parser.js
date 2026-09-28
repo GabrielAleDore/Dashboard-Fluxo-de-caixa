@@ -62,6 +62,7 @@ const CsvParser = {
       if (!vencimento) continue;
 
       normalized.push({
+        id: `mov_${normalized.length}`,
         parcela: (parcela || '').trim(),
         emissao,
         vencimento,

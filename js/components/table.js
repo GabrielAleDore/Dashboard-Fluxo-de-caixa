@@ -74,6 +74,21 @@ const TableComponent = {
     `;
   },
 
+  toggleIgnore(rowId) {
+    if (!rowId) return;
+    State.toggleIgnored(rowId);
+    if (typeof App !== 'undefined' && App.renderAll) {
+      App.renderAll();
+    }
+  },
+
+  restoreIgnored(tipo) {
+    State.clearIgnored(tipo);
+    if (typeof App !== 'undefined' && App.renderAll) {
+      App.renderAll();
+    }
+  },
+
   update(filteredData) {
     const selectedDay = State.selectedDay;
 
@@ -112,51 +127,69 @@ const TableComponent = {
     const totalRecVal  = document.getElementById('total-receber-val');
     const countRec     = document.getElementById('count-receber');
 
-    const sumReceber = receberRows.reduce((s, r) => s + r.entrada, 0);
+    const activeReceber = receberRows.filter(r => !State.isIgnored(r.id));
+    const sumReceber = activeReceber.reduce((s, r) => s + r.entrada, 0);
+    const ignoredRecCount = receberRows.length - activeReceber.length;
 
     if (tbodyReceber) {
       if (receberRows.length === 0) {
         const emptyMsg = selectedDay ? 'ℹ️ Nenhum recebimento para a data selecionada' : '✅ Nenhum recebimento no período';
         tbodyReceber.innerHTML = `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`;
       } else {
-        tbodyReceber.innerHTML = receberRows.map(r => `
-          <tr>
-            <td>${r.parcela || '—'}</td>
-            <td class="bold" title="${r.credor}">${r.credor}</td>
-            <td class="historico" title="${r.historico}">${r.historico || '—'}</td>
-            <td>${Utils.formatDateBR(r.vencimento)}</td>
-            <td class="num green-val">${Utils.fmt(r.entrada)}</td>
-          </tr>
-        `).join('');
+        tbodyReceber.innerHTML = receberRows.map(r => {
+          const isIgnored = State.isIgnored(r.id);
+          const rowTitle = isIgnored ? 'Movimentação inativada. Clique para reativar nos totais.' : 'Clique para ignorar esta movimentação dos totais';
+          return `
+            <tr class="${isIgnored ? 'mov-row-ignored' : ''}" onclick="TableComponent.toggleIgnore('${r.id}')" title="${rowTitle}">
+              <td>${r.parcela || '—'}${isIgnored ? '<span class="mov-ignored-tag">Inativado</span>' : ''}</td>
+              <td class="bold" title="${r.credor}">${r.credor}</td>
+              <td class="historico" title="${r.historico}">${r.historico || '—'}</td>
+              <td>${Utils.formatDateBR(r.vencimento)}</td>
+              <td class="num green-val">${Utils.fmt(r.entrada)}</td>
+            </tr>
+          `;
+        }).join('');
       }
     }
     if (totalRecVal) totalRecVal.textContent = Utils.fmt(sumReceber);
-    if (countRec)    countRec.textContent    = `${receberRows.length} título${receberRows.length !== 1 ? 's' : ''}`;
+    if (countRec) {
+      countRec.innerHTML = `${activeReceber.length} título${activeReceber.length !== 1 ? 's' : ''}` +
+        (ignoredRecCount > 0 ? ` <span style="color:var(--gray);">(${ignoredRecCount} inativado${ignoredRecCount > 1 ? 's' : ''})</span><button class="btn-restore-card-ignored" onclick="event.stopPropagation(); TableComponent.restoreIgnored('receber');" title="Reativar todos os recebimentos">↺ Reativar</button>` : '');
+    }
 
     // ── RENDER CONTAS A PAGAR ───────────────────────────────────
     const tbodyPagar = document.getElementById('table-pagar-body');
     const totalPagVal = document.getElementById('total-pagar-val');
     const countPag    = document.getElementById('count-pagar');
 
-    const sumPagar = pagarRows.reduce((s, r) => s + r.saida, 0);
+    const activePagar = pagarRows.filter(r => !State.isIgnored(r.id));
+    const sumPagar = activePagar.reduce((s, r) => s + r.saida, 0);
+    const ignoredPagCount = pagarRows.length - activePagar.length;
 
     if (tbodyPagar) {
       if (pagarRows.length === 0) {
         const emptyMsg = selectedDay ? 'ℹ️ Nenhum pagamento para a data selecionada' : '✅ Nenhum pagamento no período';
         tbodyPagar.innerHTML = `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`;
       } else {
-        tbodyPagar.innerHTML = pagarRows.map(r => `
-          <tr>
-            <td>${r.parcela || '—'}</td>
-            <td class="bold" title="${r.credor}">${r.credor}</td>
-            <td class="historico" title="${r.historico}">${r.historico || '—'}</td>
-            <td>${Utils.formatDateBR(r.vencimento)}</td>
-            <td class="num red-val">${Utils.fmt(r.saida)}</td>
-          </tr>
-        `).join('');
+        tbodyPagar.innerHTML = pagarRows.map(r => {
+          const isIgnored = State.isIgnored(r.id);
+          const rowTitle = isIgnored ? 'Movimentação inativada. Clique para reativar nos totais.' : 'Clique para ignorar esta movimentação dos totais';
+          return `
+            <tr class="${isIgnored ? 'mov-row-ignored' : ''}" onclick="TableComponent.toggleIgnore('${r.id}')" title="${rowTitle}">
+              <td>${r.parcela || '—'}${isIgnored ? '<span class="mov-ignored-tag">Inativado</span>' : ''}</td>
+              <td class="bold" title="${r.credor}">${r.credor}</td>
+              <td class="historico" title="${r.historico}">${r.historico || '—'}</td>
+              <td>${Utils.formatDateBR(r.vencimento)}</td>
+              <td class="num red-val">${Utils.fmt(r.saida)}</td>
+            </tr>
+          `;
+        }).join('');
       }
     }
     if (totalPagVal) totalPagVal.textContent = Utils.fmt(sumPagar);
-    if (countPag)    countPag.textContent    = `${pagarRows.length} título${pagarRows.length !== 1 ? 's' : ''}`;
+    if (countPag) {
+      countPag.innerHTML = `${activePagar.length} título${activePagar.length !== 1 ? 's' : ''}` +
+        (ignoredPagCount > 0 ? ` <span style="color:var(--gray);">(${ignoredPagCount} inativado${ignoredPagCount > 1 ? 's' : ''})</span><button class="btn-restore-card-ignored" onclick="event.stopPropagation(); TableComponent.restoreIgnored('pagar');" title="Reativar todos os pagamentos">↺ Reativar</button>` : '');
+    }
   }
 };

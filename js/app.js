@@ -198,6 +198,7 @@ const App = {
 
     State.selectedAlertFilter = null;
     State.selectedDay         = null;
+    State.clearIgnored();
     State.manualHideSaldo     = false;
 
     const chk = document.getElementById('toggle-hide-saldo');

@@ -75,8 +75,9 @@ const ChartsComponent = {
   },
 
   updateColunas(filteredData) {
+    const activeData = State.getActiveData(filteredData);
     const byDay = {};
-    filteredData.forEach(r => {
+    activeData.forEach(r => {
       const key = Utils.toInputDate(r.vencimento);
       if (!byDay[key]) {
         byDay[key] = { saida: 0, entrada: 0, label: Utils.formatShortDate(r.vencimento) };

@@ -5,6 +5,18 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.5.0] - 2026-09-28
+
+### Adicionado
+- **Inativação e Reativação Interativa de Movimentações (Ignorar dos Totais)**:
+  - Clique direto em qualquer linha de **Contas a Pagar** ou **Contas a Receber** para inativar/ignorar o título.
+  - Linha inativada recebe efeito visual imediato de **traço cinza (*line-through*)**, opacidade atenuada e tag `Inativado`.
+  - Recálculo reativo em cascata: os valores inativados são expurgados de todos os agregadores (Total a Pagar/Receber, KPIs executivos de topo, Tabela de Saldos Diários e Histograma de Desembolsos).
+  - Clicar novamente sobre a linha inativada a **reativa** instantaneamente, removendo o traço cinza e reintegrando os valores a todos os totais.
+  - Adicionado botão de atalho `↺ Reativar` no rodapé dos cards para restauração em lote com um único clique.
+
+---
+
 ## [2.4.1] - 2026-09-28
 
 ### Adicionado

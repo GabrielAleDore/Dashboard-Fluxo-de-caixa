@@ -10,8 +10,8 @@
 - **Stack Principal**: HTML5, CSS3 Moderno (Vanilla com CSS Variables), JavaScript ES6+ (Sem frameworks pesados)
 - **Bibliotecas Externas**: PapaParse v5.4.1, Chart.js v4.4.0, ChartDataLabels v2.2.0, Google Fonts (Inter & Roboto Mono)
 - **Persistência**: LocalStorage (Configurações visuais, preferências de tema e paleta de cores)
-- **Versionamento**: SemVer 2.0.0 (`v2.4.1`), documentado em `CHANGELOG.md`
-- **Mecanismo de Cache**: Versionamento de query string (`?v=2.5`)
+- **Versionamento**: SemVer 2.0.0 (`v2.5.0`), documentado em `CHANGELOG.md`
+- **Mecanismo de Cache**: Versionamento de query string (`?v=2.7`)
 
 ---
 
@@ -164,8 +164,13 @@ O módulo [csv-parser.js](file:///c:/Users/gabriel.dore/Documents/Pojetinho/Powe
   - Card Superior: **Contas a Receber** (entradas em verde).
   - Card Inferior: **Contas a Pagar** (saídas em vermelho).
 - **Sincronização**: Reflete a seleção diária do módulo de saldos ou exibe todos os títulos do período geral.
+- **Inativação / Reativação por Clique**:
+  - Clique direto em qualquer linha para inativar a movimentação (adiciona efeito visual de traço cinza *line-through*, opacidade reduzida e tag `Inativado`).
+  - O valor do item inativado é automaticamente deduzido de todos os totais (card, KPIs, saldos diários e histograma).
+  - Clique na linha inativada para reativá-la imediatamente.
+  - Botão de rodapé `↺ Reativar` para restauração em lote.
 - **Estrutura de Linha**: Documento / Parcela, Favorecido com tooltip de texto longo, Descrição/Histórico, Data de Vencimento e Valor formatado em BRL.
-- **Rodapé Agregador**: Exibe a contagem de títulos do bloco e o valor total acumulado do grupo.
+- **Rodapé Agregador**: Exibe a contagem de títulos ativos, quantidade de inativados e o valor total acumulado do grupo.
 
 ### 5.5 Gráfico de Desembolsos Programados (`ChartsComponent`)
 - **Visualização**: Gráfico de colunas agrupadas por dia de vencimento, comparando Entradas vs. Saídas.

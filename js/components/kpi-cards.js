@@ -63,12 +63,15 @@ const KpiCardsComponent = {
       };
     }
 
-    const totalEntrada = effectiveData.reduce((s, r) => s + r.entrada, 0);
-    const totalSaida   = effectiveData.reduce((s, r) => s + r.saida,   0);
+    const activeData = State.getActiveData(effectiveData);
+    const ignoredCount = effectiveData.length - activeData.length;
+
+    const totalEntrada = activeData.reduce((s, r) => s + r.entrada, 0);
+    const totalSaida   = activeData.reduce((s, r) => s + r.saida,   0);
     const resultado    = totalEntrada - totalSaida;
-    const qtd          = effectiveData.length;
-    const qtdE         = effectiveData.filter(r => r.entrada > 0).length;
-    const qtdS         = effectiveData.filter(r => r.saida > 0).length;
+    const qtd          = activeData.length;
+    const qtdE         = activeData.filter(r => r.entrada > 0).length;
+    const qtdS         = activeData.filter(r => r.saida > 0).length;
 
     const elEntradas     = document.getElementById('kpi-entradas');
     const elEntradasSub  = document.getElementById('kpi-entradas-sub');
@@ -88,12 +91,12 @@ const KpiCardsComponent = {
       if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''} no dia`;
       if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''} no dia`;
       if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? `▲ saldo de ${dayInfo.shortName}` : `▼ saldo de ${dayInfo.shortName}`;
-      if (elQtdSub)       elQtdSub.textContent      = `títulos em ${dayInfo.formattedDate}`;
+      if (elQtdSub)       elQtdSub.textContent      = `títulos em ${dayInfo.formattedDate}` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
     } else {
       if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''}`;
       if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''}`;
       if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? '▲ saldo positivo' : '▼ saldo negativo';
-      if (elQtdSub)       elQtdSub.textContent      = `títulos no período`;
+      if (elQtdSub)       elQtdSub.textContent      = `títulos no período` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
     }
 
     // Atualização do banner de escopo ativo
