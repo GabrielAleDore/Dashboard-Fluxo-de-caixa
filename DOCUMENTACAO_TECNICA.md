@@ -10,8 +10,8 @@
 - **Stack Principal**: HTML5, CSS3 Moderno (Vanilla com CSS Variables), JavaScript ES6+ (Sem frameworks pesados)
 - **Bibliotecas Externas**: PapaParse v5.4.1, Chart.js v4.4.0, ChartDataLabels v2.2.0, Google Fonts (Inter & Roboto Mono)
 - **Persistência**: LocalStorage (Configurações visuais, preferências de tema e paleta de cores)
-- **Versionamento**: SemVer 2.0.0 (`v2.3.0`), documentado em `CHANGELOG.md`
-- **Mecanismo de Cache**: Versionamento de query string (`?v=2.3`)
+- **Versionamento**: SemVer 2.0.0 (`v2.4.1`), documentado em `CHANGELOG.md`
+- **Mecanismo de Cache**: Versionamento de query string (`?v=2.5`)
 
 ---
 
@@ -146,6 +146,7 @@ O módulo [csv-parser.js](file:///c:/Users/gabriel.dore/Documents/Pojetinho/Powe
 - **Total Saídas**: Soma de `r.saida`, com subtítulo exibindo a contagem de lançamentos de débito.
 - **Resultado Líquido**: Diferença consolidada (`Total Entradas - Total Saídas`), com marcador visual dinâmico (▲ saldo positivo / ▼ saldo negativo).
 - **Qtd. Lançamentos**: Volume total de títulos no escopo filtrado.
+- **Recálculo Dinâmico por Seleção Diária**: Ao selecionar um dia específico na tabela de Saldos Diários ou no gráfico, os 4 cards recalculam instantaneamente para expressar os totais daquele dia, exibindo banner de escopo ativo com atalho para restaurar os totais do período completo.
 
 ### 5.3 Alertas de Vencimento e Saldos Diários (`AlertsComponent`)
 - **Faixas de Alerta Dinâmicas**:

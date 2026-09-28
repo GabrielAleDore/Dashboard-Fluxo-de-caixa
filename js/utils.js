@@ -26,14 +26,17 @@ const Utils = {
     return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
   },
 
-  // Converte string para Date (suporta YYYY-MM-DD e DD/MM/YYYY)
+  // Converte string para Date (suporta YYYY-MM-DD e DD/MM/YYYY) com meio-dia local para neutralizar timezone
   parseDate(s) {
     if (!s) return null;
     s = String(s).trim();
-    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s);
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+      const [y, m, d] = s.split('-');
+      return new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);
+    }
     if (/^\d{2}\/\d{2}\/\d{4}/.test(s)) {
       const [d, m, y] = s.split('/');
-      return new Date(`${y}-${m}-${d}`);
+      return new Date(Number(y), Number(m) - 1, Number(d), 12, 0, 0);
     }
     return null;
   },
@@ -48,9 +51,13 @@ const Utils = {
     return d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
   },
 
-  // Converte Date para string de input date (YYYY-MM-DD)
+  // Converte Date para string de input date (YYYY-MM-DD) usando data local
   toInputDate(d) {
-    return d ? d.toISOString().slice(0, 10) : '';
+    if (!d || !(d instanceof Date) || isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   },
 
   // Converte código Hexadecimal para formato RGBA com opacidade

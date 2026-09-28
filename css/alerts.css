@@ -85,10 +85,25 @@
   display: flex; align-items: center; justify-content: space-between;
   gap: 8px; flex-wrap: wrap;
 }
+.saldos-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .saldos-title {
   font-size: 11.5px; font-weight: 700;
   color: var(--white); text-transform: uppercase; letter-spacing: .6px;
   display: flex; align-items: center; gap: 6px;
+}
+.saldos-hint {
+  font-size: 10px;
+  color: var(--gray);
+  font-weight: 500;
+  transition: all .2s ease;
+}
+.saldos-hint.active {
+  color: #3498DB;
+  font-weight: 700;
 }
 .saldos-btn-reset-day {
   background: rgba(231, 76, 60, 0.16);
@@ -146,11 +161,12 @@
   border-left: 3px solid transparent;
 }
 .saldos-table tbody tr.saldo-row:hover {
-  background: rgba(52,152,219,.08);
+  background: rgba(52,152,219,.12);
 }
 .saldos-table tbody tr.saldo-row.selected-day-row {
-  background: rgba(52, 152, 219, 0.22) !important;
-  border-left: 3px solid var(--blue);
+  background: rgba(52, 152, 219, 0.28) !important;
+  border-left: 4px solid #3498DB !important;
+  box-shadow: inset 0 0 0 1px rgba(52, 152, 219, 0.35);
 }
 .saldos-table tbody tr.saldo-row.selected-day-row td {
   color: var(--white);
@@ -166,6 +182,20 @@
   color: var(--white);
   font-weight: 600;
   font-size: 10.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.dia-sel-indicator {
+  color: #3498DB;
+  font-size: 9px;
+  animation: pulseIndicator 1.8s infinite;
+}
+@keyframes pulseIndicator {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
 }
 .saldos-table td.num {
   text-align: right;

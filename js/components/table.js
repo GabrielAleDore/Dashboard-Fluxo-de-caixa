@@ -97,7 +97,7 @@ const TableComponent = {
     let badgeHtml = '📅 Todo o Período';
     if (selectedDay) {
       const [y, m, d] = selectedDay.split('-');
-      const dObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+      const dObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10), 12, 0, 0);
       const dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
       badgeHtml = `<span>📅 ${dayNames[dObj.getDay()]}, ${Utils.formatDateBR(dObj)}</span><button class="btn-clear-day-inline" onclick="AlertsComponent.selectDay(null)" title="Limpar seleção e exibir todos os dias">✕ Limpar</button>`;
     }
@@ -116,7 +116,8 @@ const TableComponent = {
 
     if (tbodyReceber) {
       if (receberRows.length === 0) {
-        tbodyReceber.innerHTML = `<tr><td colspan="5" class="mov-empty">✅ Nenhum recebimento para a data selecionada</td></tr>`;
+        const emptyMsg = selectedDay ? 'ℹ️ Nenhum recebimento para a data selecionada' : '✅ Nenhum recebimento no período';
+        tbodyReceber.innerHTML = `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`;
       } else {
         tbodyReceber.innerHTML = receberRows.map(r => `
           <tr>
@@ -141,7 +142,8 @@ const TableComponent = {
 
     if (tbodyPagar) {
       if (pagarRows.length === 0) {
-        tbodyPagar.innerHTML = `<tr><td colspan="5" class="mov-empty">✅ Nenhum pagamento para a data selecionada</td></tr>`;
+        const emptyMsg = selectedDay ? 'ℹ️ Nenhum pagamento para a data selecionada' : '✅ Nenhum pagamento no período';
+        tbodyPagar.innerHTML = `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`;
       } else {
         tbodyPagar.innerHTML = pagarRows.map(r => `
           <tr>

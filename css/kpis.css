@@ -9,11 +9,58 @@
   --kpi-sub-size: 9.5px;     /* Tamanho do subtítulo/legenda */
 }
 
+/* BANNER DE ESCOPO DIÁRIO ATIVO NOS KPIS */
+.kpi-scope-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(52, 152, 219, 0.12);
+  border: 1px solid rgba(52, 152, 219, 0.35);
+  border-radius: var(--radius);
+  padding: 6px 14px;
+  margin-bottom: 10px;
+  animation: fadeUp .3s ease both;
+}
+.kpi-scope-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--white);
+}
+.kpi-scope-info strong {
+  color: var(--blue);
+}
+.kpi-btn-clear-scope {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-btn-clear-scope:hover {
+  background: rgba(231, 76, 60, 0.25);
+  border-color: #E74C3C;
+  color: #ff7675;
+}
+
 /* KPI CARDS COMPONENT STYLES */
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
+  transition: all .25s ease;
+}
+.kpi-row.day-scoped .kpi-card {
+  box-shadow: 0 0 0 1px rgba(52, 152, 219, 0.35), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .kpi-card {
@@ -115,4 +162,24 @@
 /* OVERRIDES MODO CLARO PARA KPIS */
 body.light-theme .kpi-card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+body.light-theme .kpi-scope-bar {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+body.light-theme .kpi-scope-info {
+  color: #1E293B;
+}
+body.light-theme .kpi-scope-info strong {
+  color: #2563EB;
+}
+body.light-theme .kpi-btn-clear-scope {
+  background: #E2E8F0;
+  border-color: #CBD5E1;
+  color: #475569;
+}
+body.light-theme .kpi-btn-clear-scope:hover {
+  background: #FEE2E2;
+  border-color: #F87171;
+  color: #DC2626;
 }

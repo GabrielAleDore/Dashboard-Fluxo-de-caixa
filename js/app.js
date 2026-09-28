@@ -146,8 +146,11 @@ const App = {
     const toVal     = toInput   ? toInput.value   : '';
     const credorVal = credSel   ? credSel.value   : '';
 
-    const dateFrom  = fromVal ? new Date(fromVal) : null;
-    const dateTo    = toVal   ? new Date(toVal)   : null;
+    const dateFrom  = fromVal ? Utils.parseDate(fromVal) : null;
+    if (dateFrom) dateFrom.setHours(0, 0, 0, 0);
+
+    const dateTo    = toVal ? Utils.parseDate(toVal) : null;
+    if (dateTo) dateTo.setHours(23, 59, 59, 999);
 
     State.dateFrom = dateFrom;
     State.dateTo   = dateTo;
@@ -168,6 +171,11 @@ const App = {
       if (credorVal && r.credor !== credorVal) return false;
       return true;
     });
+
+    // Se o dia selecionado não constar mais nos dados filtrados, limpa
+    if (State.selectedDay && !State.filteredData.some(r => Utils.toInputDate(r.vencimento) === State.selectedDay)) {
+      State.selectedDay = null;
+    }
 
     State.currentPage = 1;
     this.renderAll();
@@ -200,7 +208,7 @@ const App = {
   },
 
   renderAll() {
-    KpiCardsComponent.update(State.filteredData);
+    KpiCardsComponent.update(State.filteredData, State.selectedDay);
     ChartsComponent.update(State.filteredData);
     AlertsComponent.update(State.allData, State.selectedCredor);
     TableComponent.update(State.filteredData);

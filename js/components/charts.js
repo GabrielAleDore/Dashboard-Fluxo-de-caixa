@@ -100,6 +100,27 @@ const ChartsComponent = {
 
     const colorSaida = State.chartColunasColor || '#E74C3C';
     const theme = this.getThemeColors();
+    const selDay = State.selectedDay;
+
+    const bgSaidas = sorted.map(([k]) => {
+      if (!selDay) return Utils.hexToRgba(colorSaida, 0.85);
+      return k === selDay ? colorSaida : Utils.hexToRgba(colorSaida, 0.22);
+    });
+    const borderSaidas = sorted.map(([k]) => {
+      if (!selDay) return colorSaida;
+      return k === selDay ? '#FFFFFF' : Utils.hexToRgba(colorSaida, 0.3);
+    });
+    const bwSaidas = sorted.map(([k]) => (selDay && k === selDay ? 2 : 1));
+
+    const bgEntradas = sorted.map(([k]) => {
+      if (!selDay) return 'rgba(46, 204, 113, 0.75)';
+      return k === selDay ? '#2ECC71' : 'rgba(46, 204, 113, 0.22)';
+    });
+    const borderEntradas = sorted.map(([k]) => {
+      if (!selDay) return '#2ECC71';
+      return k === selDay ? '#FFFFFF' : 'rgba(46, 204, 113, 0.3)';
+    });
+    const bwEntradas = sorted.map(([k]) => (selDay && k === selDay ? 2 : 1));
 
     State.chartColunasInstance = new Chart(ctx, {
       type: 'bar',
@@ -109,9 +130,9 @@ const ChartsComponent = {
           {
             label: 'Saídas',
             data: saidas,
-            backgroundColor: Utils.hexToRgba(colorSaida, 0.85),
-            borderColor: colorSaida,
-            borderWidth: 1,
+            backgroundColor: bgSaidas,
+            borderColor: borderSaidas,
+            borderWidth: bwSaidas,
             borderRadius: 6,
             datalabels: {
               anchor: 'end', align: 'top',
@@ -122,9 +143,9 @@ const ChartsComponent = {
           {
             label: 'Entradas',
             data: entradas,
-            backgroundColor: 'rgba(46,204,113,.75)',
-            borderColor: '#2ECC71',
-            borderWidth: 1,
+            backgroundColor: bgEntradas,
+            borderColor: borderEntradas,
+            borderWidth: bwEntradas,
             borderRadius: 6,
             datalabels: {
               anchor: 'end', align: 'top',
@@ -137,6 +158,14 @@ const ChartsComponent = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (evt, elements) => {
+          if (elements && elements.length > 0) {
+            const idx = elements[0].index;
+            if (sorted[idx] && typeof AlertsComponent !== 'undefined') {
+              AlertsComponent.selectDay(sorted[idx][0]);
+            }
+          }
+        },
         plugins: {
           legend: { labels: { color: theme.textColor, font: { size: 11, family: 'Inter' } } },
           tooltip: {

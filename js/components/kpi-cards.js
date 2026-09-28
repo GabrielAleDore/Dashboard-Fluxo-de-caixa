@@ -7,7 +7,18 @@ const KpiCardsComponent = {
   render(container) {
     if (!container) return;
     container.innerHTML = `
-      <div class="kpi-row">
+      <!-- BANNER DE ESCOPO DIÁRIO ATIVO -->
+      <div class="kpi-scope-bar" id="kpi-scope-bar" style="display:none;">
+        <div class="kpi-scope-info">
+          <span class="kpi-scope-icon">📅</span>
+          <span>Exibindo totais de: <strong id="kpi-scope-day-text">—</strong></span>
+        </div>
+        <button class="kpi-btn-clear-scope" onclick="AlertsComponent.selectDay(null)" title="Limpar filtro diário e exibir totais consolidados do período">
+          ✕ Ver Totais do Período
+        </button>
+      </div>
+
+      <div class="kpi-row" id="kpi-row-cards">
         <div class="kpi-card green">
           <div class="kpi-icon">↑</div>
           <div class="kpi-label">Total Entradas</div>
@@ -36,13 +47,28 @@ const KpiCardsComponent = {
     `;
   },
 
-  update(filteredData) {
-    const totalEntrada = filteredData.reduce((s, r) => s + r.entrada, 0);
-    const totalSaida   = filteredData.reduce((s, r) => s + r.saida,   0);
+  update(filteredData, selectedDay = State.selectedDay) {
+    let effectiveData = filteredData;
+    let dayInfo = null;
+
+    if (selectedDay) {
+      effectiveData = filteredData.filter(r => Utils.toInputDate(r.vencimento) === selectedDay);
+      const [y, m, d] = selectedDay.split('-');
+      const dObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10), 12, 0, 0);
+      const dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+      dayInfo = {
+        name: dayNames[dObj.getDay()],
+        shortName: dayNames[dObj.getDay()].replace('-feira', ''),
+        formattedDate: Utils.formatDateBR(dObj)
+      };
+    }
+
+    const totalEntrada = effectiveData.reduce((s, r) => s + r.entrada, 0);
+    const totalSaida   = effectiveData.reduce((s, r) => s + r.saida,   0);
     const resultado    = totalEntrada - totalSaida;
-    const qtd          = filteredData.length;
-    const qtdE         = filteredData.filter(r => r.entrada > 0).length;
-    const qtdS         = filteredData.filter(r => r.saida > 0).length;
+    const qtd          = effectiveData.length;
+    const qtdE         = effectiveData.filter(r => r.entrada > 0).length;
+    const qtdS         = effectiveData.filter(r => r.saida > 0).length;
 
     const elEntradas     = document.getElementById('kpi-entradas');
     const elEntradasSub  = document.getElementById('kpi-entradas-sub');
@@ -54,12 +80,36 @@ const KpiCardsComponent = {
     const elQtdSub       = document.getElementById('kpi-qtd-sub');
 
     if (elEntradas)     elEntradas.textContent     = Utils.fmt(totalEntrada);
-    if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''}`;
     if (elSaidas)       elSaidas.textContent       = Utils.fmt(totalSaida);
-    if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''}`;
     if (elResultado)    elResultado.textContent    = Utils.fmt(resultado);
-    if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? '▲ saldo positivo' : '▼ saldo negativo';
     if (elQtd)          elQtd.textContent          = qtd.toLocaleString('pt-BR');
-    if (elQtdSub)       elQtdSub.textContent      = `títulos no período`;
+
+    if (dayInfo) {
+      if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''} no dia`;
+      if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''} no dia`;
+      if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? `▲ saldo de ${dayInfo.shortName}` : `▼ saldo de ${dayInfo.shortName}`;
+      if (elQtdSub)       elQtdSub.textContent      = `títulos em ${dayInfo.formattedDate}`;
+    } else {
+      if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''}`;
+      if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''}`;
+      if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? '▲ saldo positivo' : '▼ saldo negativo';
+      if (elQtdSub)       elQtdSub.textContent      = `títulos no período`;
+    }
+
+    // Atualização do banner de escopo ativo
+    const scopeBar = document.getElementById('kpi-scope-bar');
+    const scopeDayText = document.getElementById('kpi-scope-day-text');
+    const cardsRow = document.getElementById('kpi-row-cards');
+
+    if (scopeBar && scopeDayText) {
+      if (dayInfo) {
+        scopeDayText.textContent = `${dayInfo.name}, ${dayInfo.formattedDate}`;
+        scopeBar.style.display = 'flex';
+        if (cardsRow) cardsRow.classList.add('day-scoped');
+      } else {
+        scopeBar.style.display = 'none';
+        if (cardsRow) cardsRow.classList.remove('day-scoped');
+      }
+    }
   }
 };

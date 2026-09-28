@@ -5,6 +5,35 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.4.1] - 2026-09-28
+
+### Adicionado
+- **Recálculo Dinâmico dos Cards de Totais Executivos (KPIs)**:
+  - Os 4 cards de topo (*Total Entradas*, *Total Saídas*, *Resultado Líquido*, *Qtd. Lançamentos*) recalculam automaticamente para refletir com exatidão o montante do dia selecionado em Saldos Diários.
+  - Subtítulos contextuais dinâmicos (*"X lançamentos no dia"*, *"saldo de [Dia]"*, *"títulos em DD/MM/AAAA"*).
+  - Banner informativo de escopo ativo com atalho `✕ Ver Totais do Período`.
+- **Destaque Interativo no Gráfico de Desembolsos**:
+  - A barra do dia selecionado no gráfico de desembolsos ganha foco de destaque cromático enquanto os demais dias sofrem atenuação de opacidade (efeito *cross-filter* nativo de Power BI).
+  - Clique em qualquer barra do gráfico também alterna a seleção do dia no dashboard.
+
+---
+
+## [2.4.0] - 2026-09-28
+
+### Adicionado
+- **Filtro Interativo por Dia (Saldos Diários ➔ Contas a Pagar e Receber)**:
+  - Seleção por clique em qualquer linha da tabela **Saldos Diários por Data** (ex: Quinta-feira, Terça-feira).
+  - Filtragem reativa instantânea dos cards de **Contas a Receber** e **Contas a Pagar**, exibindo exclusivamente os lançamentos de débito e crédito que compõem o saldo do dia selecionado.
+  - Indicador visual ativo na linha selecionada (`● Selecionado`, borda com destaque azul e efeito glow) com suporte a toggle (clicar novamente na mesma linha desmarca o dia).
+  - Botão de controle `✕ Ver Todos os Dias` no cabeçalho dos saldos diários e botões inline `✕ Limpar` nos badges de Contas a Receber e Contas a Pagar.
+  - Dica de usabilidade contextual dinâmica (*"💡 Clique em um dia para detalhar"* / *"Filtro diário ativo nas contas"*).
+
+### Corrigido
+- **Normalização de Fuso Horário (Timezone GMT-3)**:
+  - Eliminação de anomalia de fuso horário em `Utils.parseDate` e `Utils.toInputDate`, garantindo que datas do CSV sejam instanciadas no meio-dia local (`12:00:00`) e neutralizem saltos de dia ou divergências entre dia da semana e chave de filtro.
+
+---
+
 ## [2.3.1] - 2026-09-28
 
 ### Modificado

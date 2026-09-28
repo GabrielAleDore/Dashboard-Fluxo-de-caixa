@@ -73,11 +73,14 @@ const AlertsComponent = {
 
         <!-- TABELA DE SALDOS DIÁRIOS (SUBSTITUI PRÓXIMAS MOVIMENTAÇÕES) -->
         <div class="saldos-header-row">
-          <div class="saldos-title">
-            <span>📋 Saldos Diários por Data</span>
+          <div class="saldos-title-wrap">
+            <div class="saldos-title">
+              <span>📋 Saldos Diários por Data</span>
+            </div>
+            <span class="saldos-hint" id="saldos-hint">💡 Clique em um dia para detalhar</span>
           </div>
           <button class="saldos-btn-reset-day" id="btn-reset-day" onclick="AlertsComponent.selectDay(null)" style="display:none;" title="Limpar seleção e exibir todos os dias">
-            ✕ Limpar Seleção
+            ✕ Ver Todos os Dias
           </button>
         </div>
 
@@ -146,15 +149,36 @@ const AlertsComponent = {
     this.highlightSelectedDay();
     this.updateResetButton();
 
+    // 1. Atualiza os cards de KPI executivos superiores
+    if (typeof KpiCardsComponent !== 'undefined') {
+      KpiCardsComponent.update(State.filteredData, State.selectedDay);
+    }
+
+    // 2. Atualiza as tabelas de Contas a Pagar e Contas a Receber
     if (typeof TableComponent !== 'undefined') {
       TableComponent.update(State.filteredData);
+    }
+
+    // 3. Atualiza o gráfico destacando o dia selecionado
+    if (typeof ChartsComponent !== 'undefined') {
+      ChartsComponent.update(State.filteredData);
     }
   },
 
   updateResetButton() {
     const btnResetDay = document.getElementById('btn-reset-day');
+    const hint = document.getElementById('saldos-hint');
     if (btnResetDay) {
       btnResetDay.style.display = State.selectedDay ? 'inline-flex' : 'none';
+    }
+    if (hint) {
+      if (State.selectedDay) {
+        hint.textContent = 'Filtro diário ativo nas contas';
+        hint.classList.add('active');
+      } else {
+        hint.textContent = '💡 Clique em um dia para detalhar';
+        hint.classList.remove('active');
+      }
     }
   },
 
@@ -162,10 +186,16 @@ const AlertsComponent = {
     const rows = document.querySelectorAll('.saldos-table tbody tr.saldo-row');
     rows.forEach(r => {
       const rowDate = r.getAttribute('data-date');
-      if (State.selectedDay && rowDate === State.selectedDay) {
+      const isSel = Boolean(State.selectedDay && rowDate === State.selectedDay);
+      const indicator = r.querySelector('.dia-sel-indicator');
+      if (isSel) {
         r.classList.add('selected-day-row');
+        r.setAttribute('title', 'Dia selecionado. Clique novamente para desmarcar.');
+        if (indicator) indicator.style.display = 'inline-block';
       } else {
         r.classList.remove('selected-day-row');
+        r.setAttribute('title', 'Clique para ver contas a pagar e receber deste dia');
+        if (indicator) indicator.style.display = 'none';
       }
     });
   },
@@ -292,10 +322,14 @@ const AlertsComponent = {
         const tr = document.createElement('tr');
         tr.className = `saldo-row ${isSelected ? 'selected-day-row' : ''}`;
         tr.setAttribute('data-date', d.key);
+        tr.setAttribute('title', isSelected ? 'Dia selecionado. Clique novamente para desmarcar.' : 'Clique para ver contas a pagar e receber deste dia');
         tr.onclick = () => AlertsComponent.selectDay(d.key);
 
         tr.innerHTML = `
-          <td class="dia-label" style="${isToday ? 'color:var(--amber);font-weight:700;' : ''}">${dayOfWeek}</td>
+          <td class="dia-label" style="${isToday ? 'color:var(--amber);font-weight:700;' : ''}">
+            <span class="dia-name">${dayOfWeek}</span>
+            <span class="dia-sel-indicator" style="display:${isSelected ? 'inline-block' : 'none'};" title="Ativo">●</span>
+          </td>
           <td>${Utils.formatDateBR(d.dateObj)}</td>
           <td class="num green-val">${Utils.fmt(d.credito)}</td>
           <td class="num red-val">${Utils.fmt(d.debito)}</td>
@@ -317,10 +351,7 @@ const AlertsComponent = {
       footFinal.className   = `num ${runningSaldo >= 0 ? 'green-val' : 'red-val'}`;
     }
 
-    const btnResetDay = document.getElementById('btn-reset-day');
-    if (btnResetDay) {
-      btnResetDay.style.display = State.selectedDay ? 'inline-flex' : 'none';
-    }
+    this.updateResetButton();
 
     this.updateUI();
   }
