@@ -22,8 +22,26 @@ const HeaderComponent = {
               <div class="header-subtitle">Gestão Financeira &amp; Fluxo de Caixa</div>
             </div>
           </div>
+
+          <!-- MONITOR DE SAÚDE TEMPORAL DO ARQUIVO -->
+          <div class="sync-status-group" id="sync-status-group">
+            <div class="sync-badge idle" id="sync-badge">
+              <span class="sync-badge-icon">⏳</span>
+              <span class="sync-badge-text">Aguardando base...</span>
+            </div>
+          </div>
         </div>
+
         <div class="header-controls">
+          <!-- AÇÃO DE SINCRONIZAÇÃO VIA GOOGLE DRIVE -->
+          <div class="sync-actions-group">
+            <button class="btn-sync" id="btn-sync-drive" onclick="App.fetchDriveData()" title="Sincronizar base mais recente do Google Drive">
+              <span class="btn-sync-icon" id="sync-btn-icon">↻</span>
+              <span class="btn-sync-label">Sincronizar</span>
+            </button>
+          </div>
+
+          <!-- FILTRO DE PERÍODO -->
           <div class="filter-group filter-group-date">
             <span class="filter-label">📅 Período (Vencimento)</span>
             <div class="filter-date-row">
@@ -36,6 +54,8 @@ const HeaderComponent = {
               </div>
             </div>
           </div>
+
+          <!-- FILTRO DE CREDOR/CLIENTE PESQUISÁVEL -->
           <div class="filter-group filter-group-credor">
             <span class="filter-label">🏢 Cliente / Credor</span>
             <div class="filter-credor-row">
@@ -54,6 +74,8 @@ const HeaderComponent = {
               <button class="btn-reset" id="btn-reset-filters" title="Limpar todos os filtros">↺ Limpar</button>
             </div>
           </div>
+
+          <!-- ALTERNADOR DE TEMA -->
           <div class="filter-group filter-group-theme">
             <span class="filter-label">Tema</span>
             <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="App.toggleTheme()" title="Alternar entre modo claro e escuro">
@@ -67,6 +89,71 @@ const HeaderComponent = {
 
     this.bindEvents();
     this.updateThemeButton();
+    this.updateSyncBadge();
+  },
+
+  updateSyncBadge() {
+    const badge = document.getElementById('sync-badge');
+    const syncBtn = document.getElementById('btn-sync-drive');
+    const syncIcon = document.getElementById('sync-btn-icon');
+    if (!badge) return;
+
+    const meta = State.fileMetadata;
+    badge.className = 'sync-badge'; // reset de classes
+
+    if (meta.syncStatus === 'loading') {
+      badge.classList.add('loading');
+      badge.innerHTML = `
+        <span class="sync-spinner"></span>
+        <span class="sync-badge-text">Sincronizando Google Drive...</span>
+      `;
+      if (syncBtn) syncBtn.disabled = true;
+      if (syncIcon) syncIcon.classList.add('rotating');
+      return;
+    }
+
+    if (syncBtn) syncBtn.disabled = false;
+    if (syncIcon) syncIcon.classList.remove('rotating');
+
+    if (meta.syncStatus === 'error') {
+      badge.classList.add('error');
+      const msg = meta.errorMessage || 'Falha na conexão com o Drive';
+      badge.title = `Erro: ${msg}. Clique no botão Sincronizar para tentar novamente.`;
+      badge.innerHTML = `
+        <span class="sync-badge-icon">✕</span>
+        <span class="sync-badge-text">Falha na Sincronização</span>
+      `;
+      return;
+    }
+
+    if (meta.syncStatus === 'success' && meta.lastModified) {
+      const dateStr = meta.lastModified.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      const timeStr = meta.lastModified.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+      if (meta.isOutdated) {
+        badge.classList.add('outdated');
+        badge.title = `Arquivo desatualizado: modificado há ${meta.daysLag} dia(s) em ${dateStr} às ${timeStr}.`;
+        badge.innerHTML = `
+          <span class="sync-badge-icon">⚠️</span>
+          <span class="sync-badge-text">Base Defasada (${meta.daysLag}d atrás) · ${dateStr} ${timeStr}</span>
+        `;
+      } else {
+        badge.classList.add('fresh');
+        badge.title = `Base do dia atualizada! Arquivo: ${meta.fileName} (Atualizado em ${dateStr} às ${timeStr})`;
+        badge.innerHTML = `
+          <span class="sync-badge-icon">☁</span>
+          <span class="sync-badge-text">Base Atualizada · ${dateStr} ${timeStr}</span>
+        `;
+      }
+      return;
+    }
+
+    // Estado inicial padrão
+    badge.classList.add('idle');
+    badge.innerHTML = `
+      <span class="sync-badge-icon">⏳</span>
+      <span class="sync-badge-text">Aguardando sincronização</span>
+    `;
   },
 
   updateThemeButton() {

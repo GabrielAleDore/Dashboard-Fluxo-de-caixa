@@ -1,6 +1,6 @@
 /**
  * APP MODULE
- * Orquestrador principal da aplicação: inicialização, eventos de upload e coordenação de filtros
+ * Orquestrador principal da aplicação: inicialização automática via Google Drive e coordenação de filtros
  */
 
 const App = {
@@ -18,23 +18,88 @@ const App = {
     AlertsComponent.render(document.getElementById('alerts-container'));
     TableComponent.render(document.getElementById('table-container'));
 
-    // Configura eventos de upload e arrastar/soltar
-    this.setupUploadHandlers();
+    // Sincroniza a versão no rodapé
+    const footerVerEl = document.getElementById('footer-version-text');
+    if (footerVerEl && State.version) {
+      footerVerEl.textContent = `Versão ${State.version}`;
+    }
+
+    // Inicia imediatamente buscando os dados mais recentes do Google Drive
+    this.fetchDriveData();
   },
 
-  loadDemoData() {
-    const demoCsv = `parcela;emissao;vencimento;credor;historico;moeda;entrada;saida;saldo
-101/01;10/09/2026;24/09/2026;ENEL DISTRIBUICAO;Conta de Energia Matriz;BRL;0,00;1250,50;0,00
-102/01;12/09/2026;24/09/2026;CLIENTE ABC LTDA;Recebimento de Fatura 445;BRL;8500,00;0,00;0,00
-103/01;15/09/2026;24/09/2026;POSTO IPIRANGA;Abastecimento de Frota;BRL;0,00;620,00;0,00
-104/01;15/09/2026;24/09/2026;CLIENTE DELTA SA;Serviços de Consultoria;BRL;3200,00;0,00;0,00
-105/01;16/09/2026;25/09/2026;FORNECEDOR XYZ;Compra de Materiais;BRL;0,00;4300,00;0,00
-106/01;18/09/2026;25/09/2026;CLIENTE ABC LTDA;Recebimento Mensalidade;BRL;5100,00;0,00;0,00
-107/01;10/09/2026;26/09/2026;BANCO DO BRASIL;Taxa de Manutenção;BRL;0,00;150,00;0,00
-108/01;20/09/2026;26/09/2026;MERCADO LIVRE;Equipamentos TI;BRL;0,00;890,00;0,00
-109/01;21/09/2026;26/09/2026;CLIENTE VIP TECH;Projeto Customizado;BRL;12000,00;0,00;0,00`;
-    const data = CsvParser.parse(demoCsv);
-    this.loadData(data);
+  async fetchDriveData() {
+    if (!State.driveApiUrl || State.driveApiUrl.trim() === '') {
+      State.fileMetadata.syncStatus = 'error';
+      State.fileMetadata.errorMessage = 'A URL da API do Google Apps Script não foi configurada.';
+      HeaderComponent.updateSyncBadge();
+      return;
+    }
+
+    State.fileMetadata.syncStatus = 'loading';
+    State.fileMetadata.errorMessage = null;
+    HeaderComponent.updateSyncBadge();
+
+    const bar = document.getElementById('loading-bar');
+    if (bar) bar.style.width = '35%';
+
+    try {
+      const response = await fetch(State.driveApiUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        redirect: 'follow'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Falha na requisição HTTP: ${response.status} ${response.statusText}`);
+      }
+
+      if (bar) bar.style.width = '75%';
+      const json = await response.json();
+
+      if (json.status !== 'success') {
+        throw new Error(json.message || 'Erro retornado pelo Google Apps Script.');
+      }
+
+      // Validação temporal e cálculo de defasagem (dias de atraso)
+      const fileDate = new Date(json.lastModified);
+      const now = new Date();
+
+      // Normaliza para início do dia (00:00:00) para contagem exata de dias
+      const fileMidnight = new Date(fileDate.getFullYear(), fileDate.getMonth(), fileDate.getDate());
+      const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffMs = nowMidnight - fileMidnight;
+      const daysLag = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const isOutdated = daysLag > 0;
+
+      State.fileMetadata = {
+        fileName: json.fileName,
+        lastModified: fileDate,
+        isOutdated,
+        daysLag: Math.max(0, daysLag),
+        syncStatus: 'success',
+        errorMessage: null
+      };
+
+      // Processa o conteúdo CSV
+      const parsedData = CsvParser.parse(json.csvData);
+      this.loadData(parsedData);
+
+      if (bar) {
+        bar.style.width = '100%';
+        setTimeout(() => { bar.style.width = '0'; }, 500);
+      }
+
+      HeaderComponent.updateSyncBadge();
+
+    } catch (err) {
+      console.error('Erro na sincronização com Google Drive:', err);
+      State.fileMetadata.syncStatus = 'error';
+      State.fileMetadata.errorMessage = err.message;
+
+      if (bar) bar.style.width = '0';
+      HeaderComponent.updateSyncBadge();
+    }
   },
 
   initTheme() {
@@ -57,62 +122,6 @@ const App = {
     }
   },
 
-  setupUploadHandlers() {
-    const fileInput = document.getElementById('file-input');
-    if (fileInput) {
-      fileInput.addEventListener('change', e => {
-        if (e.target.files && e.target.files[0]) {
-          this.handleFile(e.target.files[0]);
-        }
-      });
-    }
-
-    const dropZone = document.getElementById('drop-zone');
-    if (dropZone) {
-      dropZone.addEventListener('dragover', e => {
-        e.preventDefault();
-        dropZone.classList.add('dragover');
-      });
-      dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-      dropZone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropZone.classList.remove('dragover');
-        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-          this.handleFile(e.dataTransfer.files[0]);
-        }
-      });
-    }
-  },
-
-  handleFile(file) {
-    if (!file || !file.name.endsWith('.csv')) {
-      alert('Por favor, selecione um arquivo no formato .csv');
-      return;
-    }
-
-    const bar = document.getElementById('loading-bar');
-    if (bar) bar.style.width = '30%';
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      if (bar) bar.style.width = '80%';
-      setTimeout(() => {
-        try {
-          const data = CsvParser.parse(e.target.result);
-          this.loadData(data);
-          if (bar) {
-            bar.style.width = '100%';
-            setTimeout(() => { bar.style.width = '0'; }, 500);
-          }
-        } catch (err) {
-          alert('Erro ao processar o CSV: ' + err.message);
-          if (bar) bar.style.width = '0';
-        }
-      }, 100);
-    };
-    reader.readAsText(file, 'UTF-8');
-  },
-
   loadData(data) {
     State.allData = data;
 
@@ -124,12 +133,6 @@ const App = {
     if (dates.length) {
       HeaderComponent.setDateRange(dates[0], dates[dates.length - 1]);
     }
-
-    // Exibe o dashboard e oculta a tela de upload
-    const uploadOverlay = document.getElementById('upload-overlay');
-    const dashboardEl   = document.getElementById('dashboard');
-    if (uploadOverlay) uploadOverlay.classList.add('hidden');
-    if (dashboardEl)   dashboardEl.classList.add('visible');
 
     this.applyFilters();
   },

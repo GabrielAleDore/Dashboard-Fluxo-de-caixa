@@ -20,33 +20,15 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <!-- Módulos de Estilo CSS (com cache busting) -->
-  <link rel="stylesheet" href="css/main.css?v=2.1">
-  <link rel="stylesheet" href="css/header.css?v=2.1">
-  <link rel="stylesheet" href="css/kpis.css?v=2.1">
-  <link rel="stylesheet" href="css/charts.css?v=2.1">
-  <link rel="stylesheet" href="css/alerts.css?v=2.1">
-  <link rel="stylesheet" href="css/table.css?v=2.1">
+  <link rel="stylesheet" href="css/main.css?v=2.3">
+  <link rel="stylesheet" href="css/header.css?v=2.3">
+  <link rel="stylesheet" href="css/kpis.css?v=2.3">
+  <link rel="stylesheet" href="css/charts.css?v=2.3">
+  <link rel="stylesheet" href="css/alerts.css?v=2.3">
+  <link rel="stylesheet" href="css/table.css?v=2.3">
 </head>
 
 <body>
-
-  <!-- TELA DE UPLOAD -->
-  <div id="upload-overlay">
-    <div class="upload-logo">🌾 Condomínio Agrícola Familiar <span style="color:var(--green)">Bachinski</span></div>
-    <div class="upload-box" id="drop-zone" onclick="document.getElementById('file-input').click()">
-      <div class="upload-icon">📊</div>
-      <div class="upload-title">Carregar Base de Dados</div>
-      <div class="upload-sub">
-        Arraste o arquivo <strong>CSV</strong> aqui ou clique para selecionar.<br>
-        Compatível com <code>download (3).csv</code> ou <code>fluxocaixa_looker_ready.csv</code>
-      </div>
-      <button class="upload-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">
-        📂 Selecionar Arquivo CSV
-      </button>
-      <div class="upload-hint">Suporte a: separador vírgula ou ponto-e-vírgula · Encoding UTF-8 ou Latin-1</div>
-    </div>
-    <input type="file" id="file-input" accept=".csv" />
-  </div>
 
   <!-- BARRA DE PROGRESSO DE CARREGAMENTO -->
   <div class="loading-bar" id="loading-bar" style="width:0"></div>
@@ -72,18 +54,29 @@
       <!-- 4. Gráfico de Desembolsos Programados por Vencimento (Largura Total) -->
       <section id="charts-container"></section>
     </main>
+
+    <!-- 5. Rodapé Informativo de Versão -->
+    <footer class="dashboard-footer">
+      <div class="footer-brand">
+        🌾 Condomínio Agrícola Familiar <strong>Bachinski</strong> — Gestão Financeira &amp; Fluxo de Caixa
+      </div>
+      <div class="footer-version" title="Versão Semântica do Sistema">
+        <span class="version-dot"></span>
+        <span id="footer-version-text">Versão 2.3.0</span>
+      </div>
+    </footer>
   </div>
 
   <!-- SCRIPTS MODULARES (com cache busting) -->
-  <script src="js/utils.js?v=2.1"></script>
-  <script src="js/state.js?v=2.1"></script>
-  <script src="js/components/header.js?v=2.1"></script>
-  <script src="js/components/kpi-cards.js?v=2.1"></script>
-  <script src="js/components/charts.js?v=2.1"></script>
-  <script src="js/components/alerts.js?v=2.1"></script>
-  <script src="js/components/table.js?v=2.1"></script>
-  <script src="js/csv-parser.js?v=2.1"></script>
-  <script src="js/app.js?v=2.1"></script>
+  <script src="js/utils.js?v=2.3"></script>
+  <script src="js/state.js?v=2.3"></script>
+  <script src="js/components/header.js?v=2.3"></script>
+  <script src="js/components/kpi-cards.js?v=2.3"></script>
+  <script src="js/components/charts.js?v=2.3"></script>
+  <script src="js/components/alerts.js?v=2.3"></script>
+  <script src="js/components/table.js?v=2.3"></script>
+  <script src="js/csv-parser.js?v=2.3"></script>
+  <script src="js/app.js?v=2.3"></script>
 
 </body>
 
