@@ -5,6 +5,15 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.3.1] - 2026-09-28
+
+### Modificado
+- **Reestruturação e Harmonia do Cabeçalho**:
+  - O botão "↻ Sincronizar" agora fica permanentemente acoplado ao lado do badge de status (`.sync-cluster`), eliminando qualquer desconexão visual.
+  - Criação de layout responsivo em duas camadas (`.header-primary` e `.header-filters`) para telas de notebooks de 14" e 15" ($\le 1480\text{px}$): a linha superior preserva Marca + Alerta + Sincronizar, enquanto a linha inferior acomoda exclusivamente os filtros com espaçamento limpo.
+  - Inserção do rodapé informativo com identificação institucional e badge dinâmico da versão atual.
+  - Atualização dos links de cache busting para `?v=2.4`.
+
 ---
 
 ## [2.3.0] - 2026-09-28

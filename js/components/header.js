@@ -11,7 +11,8 @@ const HeaderComponent = {
     if (!container) return;
     container.innerHTML = `
       <div class="header">
-        <div class="header-left">
+        <!-- ZONA SUPERIOR / PRIMÁRIA: MARCA + STATUS + BOTÃO SINCRONIZAR -->
+        <div class="header-primary">
           <div class="brand-group">
             <span class="brand-icon" title="Condomínio Agrícola Familiar Bachinski">🌾</span>
             <div class="brand-text">
@@ -23,24 +24,21 @@ const HeaderComponent = {
             </div>
           </div>
 
-          <!-- MONITOR DE SAÚDE TEMPORAL DO ARQUIVO -->
-          <div class="sync-status-group" id="sync-status-group">
+          <!-- CLUSTER DE SINCRONIZAÇÃO: BADGE + BOTÃO LADO A LADO -->
+          <div class="sync-cluster" id="sync-cluster">
             <div class="sync-badge idle" id="sync-badge">
               <span class="sync-badge-icon">⏳</span>
               <span class="sync-badge-text">Aguardando base...</span>
             </div>
-          </div>
-        </div>
-
-        <div class="header-controls">
-          <!-- AÇÃO DE SINCRONIZAÇÃO VIA GOOGLE DRIVE -->
-          <div class="sync-actions-group">
             <button class="btn-sync" id="btn-sync-drive" onclick="App.fetchDriveData()" title="Sincronizar base mais recente do Google Drive">
               <span class="btn-sync-icon" id="sync-btn-icon">↻</span>
               <span class="btn-sync-label">Sincronizar</span>
             </button>
           </div>
+        </div>
 
+        <!-- ZONA DE FILTROS: EXCLUSIVAMENTE OS FILTROS -->
+        <div class="header-filters" id="header-filters">
           <!-- FILTRO DE PERÍODO -->
           <div class="filter-group filter-group-date">
             <span class="filter-label">📅 Período (Vencimento)</span>
@@ -166,8 +164,8 @@ const HeaderComponent = {
 
   bindEvents() {
     const fromInput = document.getElementById('date-from');
-    const toInput   = document.getElementById('date-to');
-    const resetBtn  = document.getElementById('btn-reset-filters');
+    const toInput = document.getElementById('date-to');
+    const resetBtn = document.getElementById('btn-reset-filters');
 
     // Filtros de data: abrir seletor visual em qualquer clique, mas permitir digitação manual
     const setupDatePicker = (input) => {
@@ -209,10 +207,10 @@ const HeaderComponent = {
     }
 
     // Eventos do Combobox Pesquisável: abre ao clicar em QUALQUER ponto
-    const input      = document.getElementById('credor-input');
-    const inputBox   = document.getElementById('combobox-input-box');
-    const clearBtn   = document.getElementById('credor-clear-btn');
-    const wrapper    = document.getElementById('combobox-credor');
+    const input = document.getElementById('credor-input');
+    const inputBox = document.getElementById('combobox-input-box');
+    const clearBtn = document.getElementById('credor-clear-btn');
+    const wrapper = document.getElementById('combobox-credor');
 
     const triggerOpen = () => {
       this.openDropdown();
@@ -276,7 +274,7 @@ const HeaderComponent = {
 
   openDropdown() {
     const dropdown = document.getElementById('credor-dropdown');
-    const wrapper  = document.getElementById('combobox-credor');
+    const wrapper = document.getElementById('combobox-credor');
     if (dropdown) dropdown.style.display = 'block';
     if (wrapper) wrapper.classList.add('open');
     this.isOpen = true;
@@ -284,7 +282,7 @@ const HeaderComponent = {
 
   closeDropdown() {
     const dropdown = document.getElementById('credor-dropdown');
-    const wrapper  = document.getElementById('combobox-credor');
+    const wrapper = document.getElementById('combobox-credor');
     if (dropdown) dropdown.style.display = 'none';
     if (wrapper) wrapper.classList.remove('open');
     this.isOpen = false;
@@ -340,8 +338,8 @@ const HeaderComponent = {
   selectCredor(value) {
     State.selectedCredor = value;
 
-    const input      = document.getElementById('credor-input');
-    const clearBtn   = document.getElementById('credor-clear-btn');
+    const input = document.getElementById('credor-input');
+    const clearBtn = document.getElementById('credor-clear-btn');
     const hiddenCred = document.getElementById('credor-filter');
 
     if (input) input.value = value;
@@ -354,8 +352,8 @@ const HeaderComponent = {
 
   resetCredor() {
     State.selectedCredor = '';
-    const input      = document.getElementById('credor-input');
-    const clearBtn   = document.getElementById('credor-clear-btn');
+    const input = document.getElementById('credor-input');
+    const clearBtn = document.getElementById('credor-clear-btn');
     const hiddenCred = document.getElementById('credor-filter');
     if (input) input.value = '';
     if (clearBtn) clearBtn.style.display = 'none';
@@ -365,8 +363,8 @@ const HeaderComponent = {
 
   setDateRange(minDate, maxDate) {
     const fromInput = document.getElementById('date-from');
-    const toInput   = document.getElementById('date-to');
+    const toInput = document.getElementById('date-to');
     if (fromInput && minDate) fromInput.value = Utils.toInputDate(minDate);
-    if (toInput && maxDate)   toInput.value   = Utils.toInputDate(maxDate);
+    if (toInput && maxDate) toInput.value = Utils.toInputDate(maxDate);
   }
 };

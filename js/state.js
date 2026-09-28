@@ -4,7 +4,7 @@
  */
 
 const State = {
-  version: '2.3.0',
+  version: '2.3.1',
   allData: [],
   filteredData: [],
   currentPage: 1,
@@ -33,7 +33,7 @@ const State = {
   // Cores personalizáveis e tema (persistidos no localStorage)
   theme: localStorage.getItem('fc_theme') || 'dark', // 'dark' | 'light'
   chartColunasColor: localStorage.getItem('fc_colunas_color') || '#E74C3C',
-  chartBarrasColor:  localStorage.getItem('fc_barras_color')  || '#F39C12',
+  chartBarrasColor: localStorage.getItem('fc_barras_color') || '#F39C12',
 
   // Instâncias dos gráficos Chart.js
   chartColunasInstance: null,
