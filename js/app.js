@@ -81,9 +81,47 @@ const App = {
         errorMessage: null
       };
 
-      // Processa o conteúdo CSV
-      const parsedData = CsvParser.parse(json.csvData);
-      this.loadData(parsedData);
+      // Ingestão dos ajustes persistidos na nuvem
+      State.dateOverrides = json.dateOverrides || {};
+      State.manualEntries = json.manualEntries || [];
+
+      // Processa o conteúdo CSV base
+      const parsedCsvData = CsvParser.parse(json.csvData);
+
+      // Aplica as datas reprogramadas aos registros do CSV
+      parsedCsvData.forEach(row => {
+        if (State.dateOverrides[row.id]) {
+          const overriddenDate = Utils.parseDate(State.dateOverrides[row.id]);
+          if (overriddenDate) {
+            row.vencimento = overriddenDate;
+            row.isReprogrammed = true;
+          }
+        }
+      });
+
+      // Normaliza e anexa os lançamentos manuais
+      const manualParsed = State.manualEntries.map(m => {
+        const venc = State.dateOverrides[m.id] ? Utils.parseDate(State.dateOverrides[m.id]) : Utils.parseDate(m.vencimento);
+        const emissao = m.emissao ? Utils.parseDate(m.emissao) : new Date();
+        return {
+          id: m.id,
+          parcela: m.parcela || 'MANUAL',
+          emissao,
+          originalVencimento: Utils.parseDate(m.vencimento),
+          vencimento: venc,
+          credor: m.credor || '',
+          historico: m.historico || '',
+          entrada: Number(m.entrada) || 0,
+          saida: Number(m.saida) || 0,
+          saldo: Number(m.saldo) || 0,
+          liquido: (Number(m.entrada) || 0) - (Number(m.saida) || 0),
+          isReprogrammed: !!State.dateOverrides[m.id],
+          isManual: true
+        };
+      });
+
+      const combinedData = [...parsedCsvData, ...manualParsed];
+      this.loadData(combinedData);
 
       if (bar) {
         bar.style.width = '100%';
@@ -100,6 +138,158 @@ const App = {
       if (bar) bar.style.width = '0';
       HeaderComponent.updateSyncBadge();
     }
+  },
+
+  /**
+   * Salva a reprogramação da data de vencimento no Google Drive e atualiza o estado local
+   */
+  async saveDateOverride(recordId, newDateStr) {
+    if (!recordId || !newDateStr) return false;
+
+    // Atualiza imediatamente em memória para feedback instantâneo
+    const newDate = Utils.parseDate(newDateStr);
+    if (!newDate) {
+      this.showToast('Data informada é inválida.', 'error');
+      return false;
+    }
+
+    const record = State.allData.find(r => r.id === recordId);
+    if (record) {
+      record.vencimento = newDate;
+      record.isReprogrammed = true;
+    }
+    State.dateOverrides[recordId] = newDateStr;
+
+    this.applyFilters();
+    this.showToast('Salvando reprogramação na nuvem...', 'info');
+
+    // Persiste no Google Apps Script de forma assíncrona
+    try {
+      const response = await fetch(State.driveApiUrl, {
+        method: 'POST',
+        // Evita CORS preflight usando text/plain
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'SAVE_DATE_OVERRIDE',
+          payload: {
+            id: recordId,
+            newDate: newDateStr
+          }
+        }),
+        redirect: 'follow'
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        this.showToast('Data reprogramada e salva no Drive com sucesso!', 'success');
+        return true;
+      } else {
+        throw new Error(result.message || 'Erro retornado pela API.');
+      }
+    } catch (err) {
+      console.error('Erro ao salvar reprogramação de data no Google Drive:', err);
+      this.showToast('Reprogramado em memória, mas houve falha ao salvar na nuvem: ' + err.message, 'warning');
+      return false;
+    }
+  },
+
+  /**
+   * Salva um novo lançamento manual no Google Drive e atualiza o estado local
+   */
+  async saveManualEntry(entryData) {
+    if (!entryData || !entryData.vencimento) return false;
+
+    const id = `manual_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const vencimentoDate = Utils.parseDate(entryData.vencimento);
+    const emissaoDate = entryData.emissao ? Utils.parseDate(entryData.emissao) : new Date();
+
+    const normalizedEntry = {
+      id,
+      parcela: entryData.parcela || 'MANUAL',
+      emissao: emissaoDate,
+      originalVencimento: vencimentoDate,
+      vencimento: vencimentoDate,
+      credor: entryData.credor || 'Sem favorecido',
+      historico: entryData.historico || '',
+      entrada: Number(entryData.entrada) || 0,
+      saida: Number(entryData.saida) || 0,
+      saldo: 0,
+      liquido: (Number(entryData.entrada) || 0) - (Number(entryData.saida) || 0),
+      isReprogrammed: false,
+      isManual: true
+    };
+
+    // Atualização otimista em memória
+    State.allData.push(normalizedEntry);
+    this.loadData(State.allData);
+    this.showToast('Salvando novo lançamento na nuvem...', 'info');
+
+    // Objeto pronto para o payload JSON do backend
+    const payloadBackend = {
+      id,
+      parcela: normalizedEntry.parcela,
+      emissao: Utils.toInputDate(emissaoDate),
+      vencimento: Utils.toInputDate(vencimentoDate),
+      credor: normalizedEntry.credor,
+      historico: normalizedEntry.historico,
+      entrada: normalizedEntry.entrada,
+      saida: normalizedEntry.saida,
+      saldo: 0,
+      liquido: normalizedEntry.liquido,
+      isManual: true
+    };
+
+    try {
+      const response = await fetch(State.driveApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'ADD_MANUAL_ENTRY',
+          payload: payloadBackend
+        }),
+        redirect: 'follow'
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        State.manualEntries.push(payloadBackend);
+        this.showToast('Lançamento salvo com sucesso no Google Drive!', 'success');
+        return true;
+      } else {
+        throw new Error(result.message || 'Erro retornado pela API.');
+      }
+    } catch (err) {
+      console.error('Erro ao salvar lançamento manual no Google Drive:', err);
+      this.showToast('Lançamento adicionado na sessão, mas falhou ao persistir na nuvem: ' + err.message, 'warning');
+      return false;
+    }
+  },
+
+  /**
+   * Sistema de feedback visual com Toast moderno
+   */
+  showToast(message, type = 'info') {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast-item toast-${type}`;
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('toast-fade-out');
+      setTimeout(() => {
+        if (toast.parentElement) toast.parentElement.removeChild(toast);
+      }, 300);
+    }, 4000);
   },
 
   initTheme() {

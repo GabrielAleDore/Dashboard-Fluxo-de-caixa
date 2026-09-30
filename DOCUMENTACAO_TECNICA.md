@@ -10,8 +10,8 @@
 - **Stack Principal**: HTML5, CSS3 Moderno (Vanilla com CSS Variables), JavaScript ES6+ (Sem frameworks pesados)
 - **Bibliotecas Externas**: PapaParse v5.4.1, Chart.js v4.4.0, ChartDataLabels v2.2.0, Google Fonts (Inter & Roboto Mono)
 - **Persistência**: LocalStorage (Configurações visuais, preferências de tema e paleta de cores)
-- **Versionamento**: SemVer 2.0.0 (`v2.5.0`), documentado em `CHANGELOG.md`
-- **Mecanismo de Cache**: Versionamento de query string (`?v=2.7`)
+- **Versionamento**: SemVer 2.0.0 (`v2.6.0`), documentado em `CHANGELOG.md`
+- **Mecanismo de Cache**: Versionamento de query string (`?v=2.8`)
 
 ---
 
@@ -116,15 +116,19 @@ O módulo [csv-parser.js](file:///c:/Users/gabriel.dore/Documents/Pojetinho/Powe
 
 | Campo | Tipo | Descrição | Regra de Normalização |
 | :--- | :--- | :--- | :--- |
+| `id` | `string` | Identificador único determinístico | Gerado via hash djb2 `${parcela}\|${credor}\|${vencimento}\|${entrada}\|${saida}\|${historico}` |
 | `parcela` | `string` | Identificador do documento ou parcela | Normalizado com `.trim()` |
 | `emissao` | `Date \| null` | Data de emissão da obrigação | Convertido via `Utils.parseDate` |
-| `vencimento` | `Date` | Data de vencimento do título | Obrigatório; registros sem data são descartados |
+| `originalVencimento` | `Date` | Vencimento original no CSV de origem | Preservado para histórico de reprogramação |
+| `vencimento` | `Date` | Data de vencimento efetiva / reprogramada | Sobrescrita se presente em `dateOverrides` |
 | `credor` | `string` | Nome do favorecido ou cliente pagador | Normalizado com `.trim()` |
 | `historico` | `string` | Descrição contábil/operacional do lançamento | Preserva detalhes originais |
 | `entrada` | `number` | Valor do crédito (recebimento) | Convertido para float positivo (`Utils.parseNum`) |
 | `saida` | `number` | Valor do débito (desembolso) | Convertido para float positivo (`Utils.parseNum`) |
 | `saldo` | `number` | Saldo bruto fornecido no extrato | Opcional / Referência |
 | `liquido` | `number` | Impacto líquido do lançamento | Calculado: `entrada - saida` |
+| `isReprogrammed` | `boolean` | Flag de data de vencimento reprogramada | `true` se houver sobrescrita persistida |
+| `isManual` | `boolean` | Flag de lançamento inserido manualmente | `true` para lançamentos criados via interface |
 
 ---
 

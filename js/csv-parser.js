@@ -4,6 +4,18 @@
  */
 
 const CsvParser = {
+  /**
+   * Gera um hash simples e determinístico (djb2) para strings
+   */
+  hashString(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) + hash) + str.charCodeAt(i);
+      hash = hash & hash; // Converte para inteiro de 32 bits
+    }
+    return Math.abs(hash).toString(16);
+  },
+
   parse(text) {
     if (!text || !text.trim()) {
       throw new Error('Arquivo vazio ou inválido.');
@@ -32,6 +44,8 @@ const CsvParser = {
     }
 
     const normalized = [];
+    const idFrequencyMap = {};
+
     for (const row of rows) {
       const keys = Object.keys(row);
       const get = (fragments) => {
@@ -61,17 +75,33 @@ const CsvParser = {
 
       if (!vencimento) continue;
 
+      // Geração de ID determinístico único baseado no conteúdo da transação
+      const cleanParcela   = (parcela || '').trim();
+      const cleanCredor    = (credor || '').trim();
+      const cleanHistorico = (historico || '').trim();
+      const vencKey        = Utils.toInputDate(vencimento);
+      const baseSignature  = `${cleanParcela}|${cleanCredor}|${vencKey}|${entrada}|${saida}|${cleanHistorico}`;
+      const baseHash       = this.hashString(baseSignature);
+
+      // Tratamento de colisões no mesmo arquivo (ex: parcelas idênticas)
+      const count = (idFrequencyMap[baseHash] || 0) + 1;
+      idFrequencyMap[baseHash] = count;
+      const deterministicId = count === 1 ? `mov_${baseHash}` : `mov_${baseHash}_${count}`;
+
       normalized.push({
-        id: `mov_${normalized.length}`,
-        parcela: (parcela || '').trim(),
+        id: deterministicId,
+        parcela: cleanParcela,
         emissao,
+        originalVencimento: vencimento,
         vencimento,
-        credor: (credor || '').trim(),
-        historico: (historico || '').trim(),
+        credor: cleanCredor,
+        historico: cleanHistorico,
         entrada,
         saida,
         saldo,
-        liquido: entrada - saida
+        liquido: entrada - saida,
+        isReprogrammed: false,
+        isManual: false
       });
     }
 

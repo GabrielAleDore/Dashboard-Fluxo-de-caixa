@@ -4,7 +4,7 @@
  */
 
 const State = {
-  version: '2.5.0',
+  version: '2.6.0',
   allData: [],
   filteredData: [],
   currentPage: 1,
@@ -22,7 +22,11 @@ const State = {
     errorMessage: null
   },
 
-  // Movimentações inativadas/ignoradas manualmente pelo usuário
+  // Ajustes persistidos colaborativamente no Google Drive
+  dateOverrides: {},   // { [recordId: string]: 'YYYY-MM-DD' }
+  manualEntries: [],   // Array de novos lançamentos manuais
+
+  // Movimentações inativadas/ignoradas manualmente pelo usuário na sessão
   ignoredMovementIds: new Set(),
 
   isIgnored(id) {

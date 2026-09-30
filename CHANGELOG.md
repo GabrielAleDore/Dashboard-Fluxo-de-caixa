@@ -5,6 +5,29 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.6.0] - 2026-09-30
+
+### Adicionado
+- **Reprogramação de Data de Vencimento Inline com Persistência em Nuvem**:
+  - Botão de ação com ícone `✏️` adicionado na primeira coluna ao lado do documento em Contas a Pagar e Contas a Receber.
+  - Prevenção de conflito de clique com `event.stopPropagation()` para não disparar a inativação da linha ao clicar na edição.
+  - Modal dinâmico e responsivo exibindo Favorecido, Documento, data original e seletor de nova data de vencimento.
+  - Badge visual de destaque `Reprogramado` nas datas alteradas, mantendo tooltip com a data original.
+- **Inserção de Novos Lançamentos Manuais**:
+  - Botão `+ Novo Lançamento` integrado aos cabeçalhos das tabelas de Contas a Receber e Contas a Pagar.
+  - Modal de cadastro completo: tipo (Entrada/Saída), Favorecido/Credor, Documento, Data de Vencimento, Data de Emissão, Valor e Histórico.
+  - Badge visual `Manual` para identificação de movimentações criadas diretamente no dashboard.
+- **Backend Colaborativo no Google Apps Script (`Code.gs`)**:
+  - Criação do arquivo auxiliar `ajustes_financeiros.json` no Google Drive para persistência colaborativa sem necessidade de banco relacional.
+  - `doGet(e)`: Retorna o CSV mais recente mesclado com `dateOverrides` e `manualEntries`.
+  - `doPost(e)`: Suporta as ações `SAVE_DATE_OVERRIDE` e `ADD_MANUAL_ENTRY`, persistindo as alterações no Drive de forma instantânea.
+- **Hash Determinístico de Transações (`js/csv-parser.js`)**:
+  - Geração de identificador único via algoritmo djb2 baseado em `${parcela}|${credor}|${vencimento}|${entrada}|${saida}|${historico}` para manter os vínculos de reprogramação estáveis entre sincronizações de CSV.
+- **Feedback Visual com Toast Moderno**:
+  - Notificações de status de salvamento (Sucesso, Atenção, Erro) flutuantes e animadas com suporte a Dark e Light themes.
+
+---
+
 ## [2.5.0] - 2026-09-28
 
 ### Adicionado
