@@ -349,21 +349,21 @@ const App = {
 
   applyFilters() {
     const fromInput = document.getElementById('date-from');
-    const toInput   = document.getElementById('date-to');
-    const credSel   = document.getElementById('credor-filter');
+    const toInput = document.getElementById('date-to');
+    const credSel = document.getElementById('credor-filter');
 
-    const fromVal   = fromInput ? fromInput.value : '';
-    const toVal     = toInput   ? toInput.value   : '';
-    const credorVal = credSel   ? credSel.value   : '';
+    const fromVal = fromInput ? fromInput.value : '';
+    const toVal = toInput ? toInput.value : '';
+    const credorVal = credSel ? credSel.value : '';
 
-    const dateFrom  = fromVal ? Utils.parseDate(fromVal) : null;
+    const dateFrom = fromVal ? Utils.parseDate(fromVal) : null;
     if (dateFrom) dateFrom.setHours(0, 0, 0, 0);
 
-    const dateTo    = toVal ? Utils.parseDate(toVal) : null;
+    const dateTo = toVal ? Utils.parseDate(toVal) : null;
     if (dateTo) dateTo.setHours(23, 59, 59, 999);
 
     State.dateFrom = dateFrom;
-    State.dateTo   = dateTo;
+    State.dateTo = dateTo;
     State.selectedCredor = credorVal;
 
     const anchor = AlertsComponent.getAnchor(State.allData);
@@ -376,7 +376,7 @@ const App = {
       // Se não houver alerta ativo, respeita o período selecionado
       if (!State.selectedAlertFilter) {
         if (dateFrom && r.vencimento < dateFrom) return false;
-        if (dateTo   && r.vencimento > dateTo)   return false;
+        if (dateTo && r.vencimento > dateTo) return false;
       }
       if (credorVal && r.credor !== credorVal) return false;
       return true;
@@ -407,9 +407,9 @@ const App = {
     if (searchInput) searchInput.value = '';
 
     State.selectedAlertFilter = null;
-    State.selectedDay         = null;
+    State.selectedDay = null;
     State.clearIgnored();
-    State.manualHideSaldo     = false;
+    State.manualHideSaldo = false;
 
     const chk = document.getElementById('toggle-hide-saldo');
     if (chk) chk.checked = false;
