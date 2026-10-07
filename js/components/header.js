@@ -30,8 +30,8 @@ const HeaderComponent = {
               <span class="sync-badge-icon">⏳</span>
               <span class="sync-badge-text">Aguardando base...</span>
             </div>
-            <button class="btn-sync" id="btn-sync-drive" onclick="App.fetchDriveData()" title="Sincronizar base mais recente do Google Drive">
-              <span class="btn-sync-icon" id="sync-btn-icon">↻</span>
+            <button class="btn-sync" id="btn-sync-drive" onclick="App.fetchDriveData()" title="Sincronizar base mais recente do SWRural / Google Drive">
+              <span class="btn-sync-icon sync-icon" id="sync-btn-icon">↻</span>
               <span class="btn-sync-label">Sincronizar</span>
             </button>
           </div>
@@ -103,19 +103,29 @@ const HeaderComponent = {
       badge.classList.add('loading');
       badge.innerHTML = `
         <span class="sync-spinner"></span>
-        <span class="sync-badge-text">Sincronizando Google Drive...</span>
+        <span class="sync-badge-text">Sincronizando com SWRural...</span>
       `;
-      if (syncBtn) syncBtn.disabled = true;
-      if (syncIcon) syncIcon.classList.add('rotating');
+      if (syncBtn) {
+        syncBtn.disabled = true;
+        syncBtn.classList.add('loading');
+      }
+      if (syncIcon) {
+        syncIcon.classList.add('spinning');
+      }
       return;
     }
 
-    if (syncBtn) syncBtn.disabled = false;
-    if (syncIcon) syncIcon.classList.remove('rotating');
+    if (syncBtn) {
+      syncBtn.disabled = false;
+      syncBtn.classList.remove('loading');
+    }
+    if (syncIcon) {
+      syncIcon.classList.remove('spinning');
+    }
 
     if (meta.syncStatus === 'error') {
       badge.classList.add('error');
-      const msg = meta.errorMessage || 'Falha na conexão com o Drive';
+      const msg = meta.errorMessage || 'Falha na conexão com o SWRural / Drive';
       badge.title = `Erro: ${msg}. Clique no botão Sincronizar para tentar novamente.`;
       badge.innerHTML = `
         <span class="sync-badge-icon">✕</span>
@@ -127,20 +137,21 @@ const HeaderComponent = {
     if (meta.syncStatus === 'success' && meta.lastModified) {
       const dateStr = meta.lastModified.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
       const timeStr = meta.lastModified.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const fileNameStr = meta.fileName || 'Arquivo SWRural';
 
       if (meta.isOutdated) {
         badge.classList.add('outdated');
-        badge.title = `Arquivo desatualizado: modificado há ${meta.daysLag} dia(s) em ${dateStr} às ${timeStr}.`;
+        badge.title = `Arquivo: ${fileNameStr} | Defasado há ${meta.daysLag} dia(s) em ${dateStr} às ${timeStr}. Clique para tentar sincronizar novamente.`;
         badge.innerHTML = `
           <span class="sync-badge-icon">⚠️</span>
-          <span class="sync-badge-text">Base Defasada (${meta.daysLag}d atrás) · ${dateStr} ${timeStr}</span>
+          <span class="sync-badge-text">${fileNameStr} · Atualizado às ${timeStr} (${meta.daysLag}d)</span>
         `;
       } else {
         badge.classList.add('fresh');
-        badge.title = `Base do dia atualizada! Arquivo: ${meta.fileName} (Atualizado em ${dateStr} às ${timeStr})`;
+        badge.title = `Base atualizada! Arquivo: ${fileNameStr} (Atualizado em ${dateStr} às ${timeStr})`;
         badge.innerHTML = `
           <span class="sync-badge-icon">☁</span>
-          <span class="sync-badge-text">Base Atualizada · ${dateStr} ${timeStr}</span>
+          <span class="sync-badge-text">${fileNameStr} · Atualizado às ${timeStr}</span>
         `;
       }
       return;

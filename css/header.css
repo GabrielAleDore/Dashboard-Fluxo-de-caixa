@@ -104,7 +104,7 @@ body.light-theme .brand-highlight {
   border-radius: 20px;
   font-size: 11px;
   font-weight: 600;
-  transition: all .25s ease;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease, box-shadow .3s ease;
   user-select: none;
   border: 1px solid transparent;
 }
@@ -114,6 +114,7 @@ body.light-theme .brand-highlight {
   background: rgba(46, 204, 113, 0.15);
   border-color: rgba(46, 204, 113, 0.4);
   color: #2ECC71;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
 }
 
 /* Base defasada / anterior (Âmbar / Laranja) */
@@ -121,6 +122,7 @@ body.light-theme .brand-highlight {
   background: rgba(243, 156, 18, 0.16);
   border-color: rgba(243, 156, 18, 0.45);
   color: #F39C12;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
 }
 
 /* Sincronizando / Carregando (Azul com pulso) */
@@ -128,6 +130,7 @@ body.light-theme .brand-highlight {
   background: rgba(52, 152, 219, 0.16);
   border-color: rgba(52, 152, 219, 0.45);
   color: #3498DB;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
 }
 
 /* Erro na sincronização (Vermelho) */
@@ -136,12 +139,14 @@ body.light-theme .brand-highlight {
   border-color: rgba(231, 76, 60, 0.45);
   color: #E74C3C;
   cursor: help;
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
 }
 
 .sync-badge.idle {
   background: rgba(160, 176, 192, 0.12);
   border-color: rgba(160, 176, 192, 0.3);
   color: var(--gray);
+  transition: background-color .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease;
 }
 
 .sync-badge-icon {
@@ -156,10 +161,10 @@ body.light-theme .brand-highlight {
   border: 2px solid rgba(52, 152, 219, 0.3);
   border-top-color: #3498DB;
   border-radius: 50%;
-  animation: spin .7s linear infinite;
+  animation: spin-sync .7s linear infinite;
 }
 
-/* ── BOTÃO DE AÇÃO: SINCRONIZAR GOOGLE DRIVE ─────────────────────── */
+/* ── BOTÃO DE AÇÃO: SINCRONIZAR GOOGLE DRIVE / SWRURAL ──────────── */
 
 .btn-sync {
   background: linear-gradient(135deg, rgba(46, 204, 113, 0.18) 0%, rgba(39, 174, 96, 0.28) 100%);
@@ -191,20 +196,25 @@ body.light-theme .brand-highlight {
   transform: none;
 }
 
-.btn-sync-icon {
+.btn-sync-icon,
+.sync-icon {
   font-size: 14px;
   display: inline-block;
   line-height: 1;
   transition: transform .2s ease;
 }
 
-.btn-sync-icon.rotating {
-  animation: spin .8s linear infinite;
-}
-
-@keyframes spin {
+@keyframes spin-sync {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+.sync-icon.spinning,
+.btn-sync-icon.spinning,
+.btn-sync.loading .sync-icon,
+.btn-sync.loading .btn-sync-icon,
+.btn-sync-icon.rotating {
+  animation: spin-sync 0.8s linear infinite;
 }
 
 .header-filters {

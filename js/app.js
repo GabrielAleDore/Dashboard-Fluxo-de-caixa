@@ -29,6 +29,14 @@ const App = {
   },
 
   async fetchDriveData() {
+    // 1. Trava de execução contra cliques concorrentes
+    if (State.fileMetadata && State.fileMetadata.syncStatus === 'loading') {
+      return;
+    }
+
+    const syncBtn = document.getElementById('btn-sync-drive');
+    const bar = document.getElementById('loading-bar');
+
     if (!State.driveApiUrl || State.driveApiUrl.trim() === '') {
       State.fileMetadata.syncStatus = 'error';
       State.fileMetadata.errorMessage = 'A URL da API do Google Apps Script não foi configurada.';
@@ -36,12 +44,16 @@ const App = {
       return;
     }
 
+    // Desativa temporariamente o elemento do botão e define cursor de espera
+    if (syncBtn) syncBtn.disabled = true;
+    document.body.style.cursor = 'wait';
+
     State.fileMetadata.syncStatus = 'loading';
     State.fileMetadata.errorMessage = null;
     HeaderComponent.updateSyncBadge();
 
-    const bar = document.getElementById('loading-bar');
-    if (bar) bar.style.width = '35%';
+    // Barra de progresso para 30% no início da requisição
+    if (bar) bar.style.width = '30%';
 
     try {
       const response = await fetch(State.driveApiUrl, {
@@ -54,11 +66,12 @@ const App = {
         throw new Error(`Falha na requisição HTTP: ${response.status} ${response.statusText}`);
       }
 
-      if (bar) bar.style.width = '75%';
+      // 70% na receção do JSON
+      if (bar) bar.style.width = '70%';
       const json = await response.json();
 
       if (json.status !== 'success') {
-        throw new Error(json.message || 'Erro retornado pelo Google Apps Script.');
+        throw new Error(json.message || 'Erro retornado pelo Google Apps Script / SWRural.');
       }
 
       // Validação temporal e cálculo de defasagem (dias de atraso)
@@ -123,6 +136,7 @@ const App = {
       const combinedData = [...parsedCsvData, ...manualParsed];
       this.loadData(combinedData);
 
+      // 100% após o parsing e re-renderização completa
       if (bar) {
         bar.style.width = '100%';
         setTimeout(() => { bar.style.width = '0'; }, 500);
@@ -131,12 +145,18 @@ const App = {
       HeaderComponent.updateSyncBadge();
 
     } catch (err) {
-      console.error('Erro na sincronização com Google Drive:', err);
+      console.error('Erro na sincronização com Google Drive / SWRural:', err);
       State.fileMetadata.syncStatus = 'error';
       State.fileMetadata.errorMessage = err.message;
 
       if (bar) bar.style.width = '0';
       HeaderComponent.updateSyncBadge();
+    } finally {
+      // Reativa o botão de sincronização e repõe o cursor normal
+      if (syncBtn) {
+        syncBtn.disabled = false;
+      }
+      document.body.style.cursor = 'default';
     }
   },
 

@@ -60,7 +60,7 @@ body {
   height: 3px;
   background: linear-gradient(90deg, var(--blue), var(--green));
   z-index: 9999;
-  transition: width .3s;
+  transition: width .35s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 0 12px var(--blue);
 }
 
