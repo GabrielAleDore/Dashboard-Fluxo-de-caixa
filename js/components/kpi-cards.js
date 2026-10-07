@@ -6,7 +6,25 @@
 const KpiCardsComponent = {
   render(container) {
     if (!container) return;
+    const mode = (typeof State !== 'undefined' && State.kpiViewMode) ? State.kpiViewMode : 'previsao';
+
     container.innerHTML = `
+      <!-- CABEÇALHO DO BLOCO DE KPIS COM SELETOR EM PÍLULA -->
+      <div class="kpi-header-row">
+        <div class="kpi-header-title">
+          <span class="kpi-title-icon">📊</span>
+          <span>Indicadores Executivos</span>
+        </div>
+        <div class="kpi-view-toggle" id="kpi-view-toggle" role="group" aria-label="Modo de visualização dos indicadores">
+          <button type="button" class="kpi-toggle-btn ${mode === 'atual' ? 'active' : ''}" data-mode="atual" title="Calcular exclusivamente títulos com vencimento até hoje">
+            ⏱️ Atual
+          </button>
+          <button type="button" class="kpi-toggle-btn ${mode === 'previsao' ? 'active' : ''}" data-mode="previsao" title="Calcular todos os lançamentos do período selecionado (inclusive datas futuras)">
+            📈 Previsão
+          </button>
+        </div>
+      </div>
+
       <!-- BANNER DE ESCOPO DIÁRIO ATIVO -->
       <div class="kpi-scope-bar" id="kpi-scope-bar" style="display:none;">
         <div class="kpi-scope-info">
@@ -45,12 +63,49 @@ const KpiCardsComponent = {
         </div>
       </div>
     `;
+
+    this.bindEvents();
+  },
+
+  bindEvents() {
+    const toggleContainer = document.getElementById('kpi-view-toggle');
+    if (!toggleContainer) return;
+
+    toggleContainer.querySelectorAll('.kpi-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetMode = btn.getAttribute('data-mode');
+        if (targetMode) {
+          this.setViewMode(targetMode);
+        }
+      });
+    });
+  },
+
+  setViewMode(mode) {
+    if (mode !== 'atual' && mode !== 'previsao') return;
+    State.kpiViewMode = mode;
+    localStorage.setItem('fc_kpi_view_mode', mode);
+    this.updateToggleUI();
+    this.update(State.filteredData, State.selectedDay);
+  },
+
+  updateToggleUI() {
+    const btns = document.querySelectorAll('.kpi-view-toggle .kpi-toggle-btn');
+    btns.forEach(btn => {
+      const mode = btn.getAttribute('data-mode');
+      if (mode === State.kpiViewMode) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
   },
 
   update(filteredData, selectedDay = State.selectedDay) {
     let effectiveData = filteredData;
     let dayInfo = null;
 
+    // Regra de Compatibilidade: Se houver filtro por dia específico ativo, tem precedência
     if (selectedDay) {
       effectiveData = filteredData.filter(r => Utils.toInputDate(r.vencimento) === selectedDay);
       const [y, m, d] = selectedDay.split('-');
@@ -61,6 +116,11 @@ const KpiCardsComponent = {
         shortName: dayNames[dObj.getDay()].replace('-feira', ''),
         formattedDate: Utils.formatDateBR(dObj)
       };
+    } else if (State.kpiViewMode === 'atual') {
+      // Modo "Atual": exclusivamente títulos cujo vencimento seja menor ou igual à data de hoje (<= 23:59:59)
+      const now = new Date();
+      const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      effectiveData = filteredData.filter(r => r.vencimento && r.vencimento <= endOfToday);
     }
 
     const activeData = State.getActiveData(effectiveData);
@@ -87,17 +147,27 @@ const KpiCardsComponent = {
     if (elResultado)    elResultado.textContent    = Utils.fmt(resultado);
     if (elQtd)          elQtd.textContent          = qtd.toLocaleString('pt-BR');
 
+    const todayStr = Utils.formatDateBR(new Date());
+
     if (dayInfo) {
       if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''} no dia`;
       if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''} no dia`;
       if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? `▲ saldo de ${dayInfo.shortName}` : `▼ saldo de ${dayInfo.shortName}`;
       if (elQtdSub)       elQtdSub.textContent      = `títulos em ${dayInfo.formattedDate}` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
+    } else if (State.kpiViewMode === 'atual') {
+      if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''} até hoje`;
+      if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} vencido${qtdS !== 1 ? 's' : ''} até hoje`;
+      if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? `▲ saldo até hoje (${todayStr})` : `▼ saldo até hoje (${todayStr})`;
+      if (elQtdSub)       elQtdSub.textContent      = `vencidos até hoje (${todayStr})` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
     } else {
-      if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''}`;
-      if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''}`;
-      if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? '▲ saldo positivo' : '▼ saldo negativo';
+      if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''} (previsão)`;
+      if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''} (previsão)`;
+      if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? '▲ saldo previsto no período' : '▼ saldo previsto no período';
       if (elQtdSub)       elQtdSub.textContent      = `títulos no período` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
     }
+
+    // Sincroniza o estado visual dos botões do seletor
+    this.updateToggleUI();
 
     // Atualização do banner de escopo ativo
     const scopeBar = document.getElementById('kpi-scope-bar');
