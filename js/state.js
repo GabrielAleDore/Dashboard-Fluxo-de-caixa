@@ -12,7 +12,15 @@ const State = {
   topN: 10,
 
   // Metadados de integração com o Google Drive e saúde do arquivo
-  driveApiUrl: localStorage.getItem('fc_drive_api_url') || 'https://script.google.com/macros/s/AKfycbwTWMJFGiqnyUe-ZMTVihRsuhwyO4UzXt1LyHHkFvPRsQVJqqBiyfTMx-losKUDmjFCVQ/exec',
+  driveApiUrl: (() => {
+    const saved = localStorage.getItem('fc_drive_api_url');
+    const defaultUrl = 'https://script.google.com/macros/s/AKfycbztVXzgu6RjW63C34cd8KmhWxEmH7Pmc647t95TlwSrDZrJFK9nNLtyLwN3h0lpHfah0Q/exec';
+    if (saved && !saved.includes('AKfycbztVXzgu6RjW63C34cd8KmhWxEmH7Pmc647t95TlwSrDZrJFK9nNLtyLwN3h0lpHfah0Q')) {
+      localStorage.removeItem('fc_drive_api_url');
+      return defaultUrl;
+    }
+    return saved || defaultUrl;
+  })(),
   fileMetadata: {
     fileName: null,
     lastModified: null,
@@ -20,6 +28,7 @@ const State = {
     daysLag: 0,
     hoursLag: 0,
     syncStatus: 'idle', // 'idle' | 'loading' | 'success' | 'error'
+    isForced: false,
     errorMessage: null
   },
 

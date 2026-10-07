@@ -101,9 +101,10 @@ const HeaderComponent = {
 
     if (meta.syncStatus === 'loading') {
       badge.classList.add('loading');
+      const loadingMsg = meta.isForced ? 'Sincronizando com SWRural...' : 'A carregar dados do Drive...';
       badge.innerHTML = `
         <span class="sync-spinner"></span>
-        <span class="sync-badge-text">Sincronizando com SWRural...</span>
+        <span class="sync-badge-text">${loadingMsg}</span>
       `;
       if (syncBtn) {
         syncBtn.disabled = true;

@@ -58,6 +58,7 @@ const App = {
     document.body.style.cursor = 'wait';
 
     State.fileMetadata.syncStatus = 'loading';
+    State.fileMetadata.isForced = force;
     State.fileMetadata.errorMessage = null;
     HeaderComponent.updateSyncBadge();
 
@@ -65,9 +66,12 @@ const App = {
     if (bar) bar.style.width = '30%';
 
     try {
-      const sep = State.driveApiUrl.includes('?') ? '&' : '?';
-      const forceParam = force ? 'force=true&' : '';
-      const requestUrl = `${State.driveApiUrl}${sep}${forceParam}_t=${Date.now()}`;
+      const url = new URL(State.driveApiUrl);
+      url.searchParams.set('_t', Date.now().toString());
+      if (force) {
+        url.searchParams.set('force', 'true');
+      }
+      const requestUrl = url.toString();
 
       const response = await fetch(requestUrl, {
         method: 'GET',
@@ -103,6 +107,7 @@ const App = {
         hoursLag,
         daysLag,
         syncStatus: 'success',
+        isForced: force,
         errorMessage: null
       };
 
