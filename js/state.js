@@ -11,9 +11,6 @@ const State = {
   pageSize: 15,
   topN: 10,
 
-  // Visão dos cards de KPI: 'previsao' (todos do período) ou 'atual' (vencidos até hoje)
-  kpiViewMode: localStorage.getItem('fc_kpi_view_mode') || 'previsao', // 'atual' | 'previsao'
-
   // Metadados de integração com o Google Drive e saúde do arquivo
   driveApiUrl: localStorage.getItem('fc_drive_api_url') || 'https://script.google.com/macros/s/AKfycbwTWMJFGiqnyUe-ZMTVihRsuhwyO4UzXt1LyHHkFvPRsQVJqqBiyfTMx-losKUDmjFCVQ/exec',
   fileMetadata: {
