@@ -26,6 +26,15 @@ const App = {
 
     // Inicia imediatamente buscando os dados mais recentes do Google Drive (sem forçar nova geração)
     this.fetchDriveData(false);
+
+    // Ticker a cada 1 minuto para reavaliar a defasagem temporal (alerta se ultrapassar 1 hora)
+    if (!this._syncCheckInterval) {
+      this._syncCheckInterval = setInterval(() => {
+        if (State.fileMetadata && State.fileMetadata.syncStatus === 'success' && State.fileMetadata.lastModified) {
+          HeaderComponent.updateSyncBadge();
+        }
+      }, 60000);
+    }
   },
 
   async fetchDriveData(force = false) {
@@ -79,22 +88,20 @@ const App = {
         throw new Error(json.message || 'Erro retornado pelo Google Apps Script / SWRural.');
       }
 
-      // Validação temporal e cálculo de defasagem (dias de atraso)
+      // Validação temporal e cálculo de defasagem (horas e dias de atraso)
       const fileDate = new Date(json.lastModified);
       const now = new Date();
-
-      // Normaliza para início do dia (00:00:00) para contagem exata de dias
-      const fileMidnight = new Date(fileDate.getFullYear(), fileDate.getMonth(), fileDate.getDate());
-      const nowMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const diffMs = nowMidnight - fileMidnight;
+      const diffMs = Math.max(0, now - fileDate);
+      const isOutdated = diffMs >= (60 * 60 * 1000); // Alerta se passar de 1 hora
+      const hoursLag = Math.floor(diffMs / (1000 * 60 * 60));
       const daysLag = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      const isOutdated = daysLag > 0;
 
       State.fileMetadata = {
         fileName: json.fileName,
         lastModified: fileDate,
         isOutdated,
-        daysLag: Math.max(0, daysLag),
+        hoursLag,
+        daysLag,
         syncStatus: 'success',
         errorMessage: null
       };

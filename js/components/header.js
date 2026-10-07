@@ -135,23 +135,33 @@ const HeaderComponent = {
     }
 
     if (meta.syncStatus === 'success' && meta.lastModified) {
-      const dateStr = meta.lastModified.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      const now = new Date();
+      const diffMs = Math.max(0, now - meta.lastModified);
+      const isOutdated = diffMs >= (60 * 60 * 1000); // Alerta se passar de 1 hora (60 min)
+      const hoursLag = Math.floor(diffMs / (1000 * 60 * 60));
+
+      const dateStr = meta.lastModified.toLocaleDateString('pt-BR');
       const timeStr = meta.lastModified.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       const fileNameStr = meta.fileName || 'Arquivo SWRural';
 
-      if (meta.isOutdated) {
+      if (isOutdated) {
         badge.classList.add('outdated');
-        badge.title = `Arquivo: ${fileNameStr} | Defasado há ${meta.daysLag} dia(s) em ${dateStr} às ${timeStr}. Clique para tentar sincronizar novamente.`;
+        const lagDetail = hoursLag >= 24 
+          ? `${Math.floor(hoursLag / 24)}d atrás` 
+          : hoursLag > 1 
+            ? `+${hoursLag}h` 
+            : `+1h`;
+        badge.title = `Alerta: Base gerada há mais de 1 hora (${lagDetail}). Arquivo: ${fileNameStr}. Clique no botão Sincronizar para atualizar.`;
         badge.innerHTML = `
           <span class="sync-badge-icon">⚠️</span>
-          <span class="sync-badge-text">${fileNameStr} · Atualizado às ${timeStr} (${meta.daysLag}d)</span>
+          <span class="sync-badge-text">Base Desatualizada (${lagDetail}) · ${dateStr} às ${timeStr}</span>
         `;
       } else {
         badge.classList.add('fresh');
-        badge.title = `Base atualizada! Arquivo: ${fileNameStr} (Atualizado em ${dateStr} às ${timeStr})`;
+        badge.title = `Base atualizada! Arquivo: ${fileNameStr} (Gerado em ${dateStr} às ${timeStr})`;
         badge.innerHTML = `
           <span class="sync-badge-icon">☁</span>
-          <span class="sync-badge-text">${fileNameStr} · Atualizado às ${timeStr}</span>
+          <span class="sync-badge-text">Base Atualizada · ${dateStr} às ${timeStr}</span>
         `;
       }
       return;

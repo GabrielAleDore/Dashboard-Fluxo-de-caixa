@@ -18,6 +18,7 @@ const State = {
     lastModified: null,
     isOutdated: false,
     daysLag: 0,
+    hoursLag: 0,
     syncStatus: 'idle', // 'idle' | 'loading' | 'success' | 'error'
     errorMessage: null
   },
