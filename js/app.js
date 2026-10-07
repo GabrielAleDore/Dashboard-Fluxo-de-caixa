@@ -24,11 +24,11 @@ const App = {
       footerVerEl.textContent = `Versão ${State.version}`;
     }
 
-    // Inicia imediatamente buscando os dados mais recentes do Google Drive
-    this.fetchDriveData();
+    // Inicia imediatamente buscando os dados mais recentes do Google Drive (sem forçar nova geração)
+    this.fetchDriveData(false);
   },
 
-  async fetchDriveData() {
+  async fetchDriveData(force = false) {
     // 1. Trava de execução contra cliques concorrentes
     if (State.fileMetadata && State.fileMetadata.syncStatus === 'loading') {
       return;
@@ -56,9 +56,14 @@ const App = {
     if (bar) bar.style.width = '30%';
 
     try {
-      const response = await fetch(State.driveApiUrl, {
+      const sep = State.driveApiUrl.includes('?') ? '&' : '?';
+      const forceParam = force ? 'force=true&' : '';
+      const requestUrl = `${State.driveApiUrl}${sep}${forceParam}_t=${Date.now()}`;
+
+      const response = await fetch(requestUrl, {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
+        cache: 'no-store',
         redirect: 'follow'
       });
 

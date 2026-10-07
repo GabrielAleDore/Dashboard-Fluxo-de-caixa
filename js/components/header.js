@@ -30,7 +30,7 @@ const HeaderComponent = {
               <span class="sync-badge-icon">⏳</span>
               <span class="sync-badge-text">Aguardando base...</span>
             </div>
-            <button class="btn-sync" id="btn-sync-drive" onclick="App.fetchDriveData()" title="Sincronizar base mais recente do SWRural / Google Drive">
+            <button class="btn-sync" id="btn-sync-drive" onclick="App.fetchDriveData(true)" title="Forçar atualização e gerar nova base do SWRural no Google Drive">
               <span class="btn-sync-icon sync-icon" id="sync-btn-icon">↻</span>
               <span class="btn-sync-label">Sincronizar</span>
             </button>

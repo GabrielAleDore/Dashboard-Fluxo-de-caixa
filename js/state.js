@@ -15,7 +15,7 @@ const State = {
   kpiViewMode: localStorage.getItem('fc_kpi_view_mode') || 'previsao', // 'atual' | 'previsao'
 
   // Metadados de integração com o Google Drive e saúde do arquivo
-  driveApiUrl: localStorage.getItem('fc_drive_api_url') || 'https://script.google.com/macros/s/AKfycbzqg1Aj5rzBXPTYMzQLVm86AgJDdaQSCPVf4TkooeohQg9UbtzL4r5m_JSDxsa1RWBU8A/exec',
+  driveApiUrl: localStorage.getItem('fc_drive_api_url') || 'https://script.google.com/macros/s/AKfycbwTWMJFGiqnyUe-ZMTVihRsuhwyO4UzXt1LyHHkFvPRsQVJqqBiyfTMx-losKUDmjFCVQ/exec',
   fileMetadata: {
     fileName: null,
     lastModified: null,
