@@ -209,20 +209,25 @@ const TableComponent = {
             <button class="btn-edit-date" onclick="event.stopPropagation(); TableComponent.openEditDateModal('${r.id}')" title="Reprogramar data de vencimento">
               ✏️
             </button>
+            ${r.isManual ? `
+              <button class="btn-delete-entry" onclick="event.stopPropagation(); TableComponent.confirmDeleteManualEntry('${r.id}')" title="Excluir este lançamento manual">
+                🗑️
+              </button>
+            ` : ''}
             <span class="doc-text" title="${r.parcela}">${r.parcela || '—'}</span>
             ${isIgnored ? '<span class="mov-ignored-tag">Inativado</span>' : ''}
             ${manualBadge}
           </div>
         </td>
-        <td class="bold" title="${r.credor}">${r.credor}</td>
-        <td class="historico" title="${r.historico}">${r.historico || '—'}</td>
+        <td class="bold td-favorecido" title="${r.credor}">${r.credor}</td>
+        <td class="historico td-historico" title="${r.historico}">${r.historico || '—'}</td>
         <td class="td-vencimento">
           <div class="venc-cell-content">
             <span class="venc-date-text">${Utils.formatDateBR(r.vencimento)}</span>
             ${reprogrammedBadge}
           </div>
         </td>
-        <td class="num ${valClass}">${Utils.fmt(valAmount)}</td>
+        <td class="num ${valClass} td-valor">${Utils.fmt(valAmount)}</td>
       </tr>
     `;
   },
@@ -323,7 +328,10 @@ const TableComponent = {
                 </div>
                 <div class="modal-form-group">
                   <label for="new-entry-valor">Valor (R$) *</label>
-                  <input type="number" step="0.01" min="0.01" id="new-entry-valor" class="modal-input" placeholder="0,00" required />
+                  <div class="currency-input-wrap">
+                    <span class="currency-prefix">R$</span>
+                    <input type="text" inputmode="numeric" id="new-entry-valor" class="modal-input modal-input-currency" placeholder="0,00" value="0,00" required autocomplete="off" />
+                  </div>
                 </div>
               </div>
 
@@ -351,19 +359,36 @@ const TableComponent = {
         </div>
       </div>
     `;
+
+    // Aplica máscara monetária reversa (centavos para reais: 0,00 -> 0,01 -> 0,11 -> 1,11)
+    const valInput = document.getElementById('new-entry-valor');
+    if (valInput) {
+      valInput.addEventListener('input', () => {
+        const clean = valInput.value.replace(/\D/g, '');
+        valInput.value = Utils.formatCentsToBRL(clean);
+      });
+
+      valInput.addEventListener('focus', () => {
+        setTimeout(() => {
+          const len = valInput.value.length;
+          valInput.setSelectionRange(len, len);
+        }, 10);
+      });
+    }
   },
 
   async submitNewEntry() {
     const tipo = document.getElementById('new-entry-tipo').value;
     const doc = document.getElementById('new-entry-doc').value;
     const credor = document.getElementById('new-entry-credor').value;
-    const valor = parseFloat(document.getElementById('new-entry-valor').value);
+    const valorStr = document.getElementById('new-entry-valor').value;
+    const valor = Utils.parseCurrencyInput(valorStr);
     const venc = document.getElementById('new-entry-venc').value;
     const emissao = document.getElementById('new-entry-emissao').value;
     const hist = document.getElementById('new-entry-hist').value;
 
     if (!credor || !venc || isNaN(valor) || valor <= 0) {
-      alert('Por favor, preencha todos os campos obrigatórios com valores válidos.');
+      alert('Por favor, informe um valor válido maior que zero e preencha todos os campos obrigatórios.');
       return;
     }
 
@@ -381,6 +406,74 @@ const TableComponent = {
 
     if (typeof App !== 'undefined' && App.saveManualEntry) {
       await App.saveManualEntry(entryData);
+    }
+  },
+
+  // ── MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE LANÇAMENTO MANUAL ─────
+  confirmDeleteManualEntry(recordId) {
+    const record = State.allData.find(r => r.id === recordId);
+    if (!record) return;
+
+    const modalContainer = document.getElementById('table-modals-container');
+    if (!modalContainer) return;
+
+    const isReceber = record.entrada > 0;
+    const valorStr = Utils.fmt(isReceber ? record.entrada : record.saida);
+    const tipoLabel = isReceber ? 'Contas a Receber (Entrada)' : 'Contas a Pagar (Saída)';
+    const vencStr = Utils.formatDateBR(record.vencimento);
+
+    modalContainer.innerHTML = `
+      <div class="modal-overlay" onclick="TableComponent.closeModal(event)">
+        <div class="modal-box modal-box-confirm" onclick="event.stopPropagation()">
+          <div class="modal-header modal-header-danger">
+            <h3>🗑️ Excluir Lançamento Manual</h3>
+            <button class="btn-modal-close" onclick="TableComponent.closeModal()">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-confirm-msg">
+              Deseja realmente excluir este lançamento manual?
+            </p>
+            <div class="modal-confirm-card">
+              <div class="modal-confirm-row">
+                <span class="lbl">Operação:</span>
+                <strong>${tipoLabel}</strong>
+              </div>
+              <div class="modal-confirm-row">
+                <span class="lbl">Favorecido:</span>
+                <strong>${record.credor}</strong>
+              </div>
+              <div class="modal-confirm-row">
+                <span class="lbl">Documento:</span>
+                <span>${record.parcela || '—'}</span>
+              </div>
+              <div class="modal-confirm-row">
+                <span class="lbl">Vencimento:</span>
+                <span>${vencStr}</span>
+              </div>
+              <div class="modal-confirm-row">
+                <span class="lbl">Valor:</span>
+                <span class="num ${isReceber ? 'green-val' : 'red-val'}" style="font-size:15px;font-weight:700;">${valorStr}</span>
+              </div>
+            </div>
+            <p class="modal-confirm-warning">
+              ⚠️ Esta ação removerá o título permanentemente do fluxo de caixa e do Google Drive.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="TableComponent.closeModal()">Cancelar</button>
+            <button type="button" class="btn-modal-delete-confirm" onclick="TableComponent.executeDeleteManualEntry('${recordId}')">
+              🗑️ Excluir Definitivamente
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  async executeDeleteManualEntry(recordId) {
+    this.closeModal();
+    if (typeof App !== 'undefined' && App.deleteManualEntry) {
+      await App.deleteManualEntry(recordId);
     }
   },
 

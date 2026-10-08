@@ -303,6 +303,49 @@ const App = {
   },
 
   /**
+   * Exclui um lançamento manual existente no Google Drive e atualiza o estado local
+   */
+  async deleteManualEntry(recordId) {
+    if (!recordId) return false;
+
+    const recordIndex = State.allData.findIndex(r => r.id === recordId);
+    if (recordIndex === -1) return false;
+
+    // Atualização otimista em memória
+    State.allData.splice(recordIndex, 1);
+    State.manualEntries = (State.manualEntries || []).filter(e => e.id !== recordId);
+    if (State.dateOverrides && State.dateOverrides[recordId]) {
+      delete State.dateOverrides[recordId];
+    }
+    this.loadData(State.allData);
+    this.showToast('Excluindo lançamento da nuvem...', 'info');
+
+    try {
+      const response = await fetch(State.driveApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          action: 'DELETE_MANUAL_ENTRY',
+          payload: { id: recordId }
+        }),
+        redirect: 'follow'
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        this.showToast('Lançamento manual excluído com sucesso!', 'success');
+        return true;
+      } else {
+        throw new Error(result.message || 'Erro retornado pela API.');
+      }
+    } catch (err) {
+      console.error('Erro ao excluir lançamento manual no Google Drive:', err);
+      this.showToast('Lançamento removido da sessão, mas não foi possível sincronizar na nuvem: ' + err.message, 'warning');
+      return false;
+    }
+  },
+
+  /**
    * Sistema de feedback visual com Toast moderno
    */
   showToast(message, type = 'info') {

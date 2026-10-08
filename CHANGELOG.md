@@ -14,10 +14,25 @@ e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/l
   - Implementação de `Utils.isValidDateInput()`: ignora eventos emitidos durante a digitação de anos intermediários (ex.: `0002` ao digitar `2026`), mantendo a integridade visual da tela.
   - Proteção contra inversão de período (`dateFrom > dateTo`): auto-sincronização automática para evitar que as tabelas e saldos fiquem vazios durante a alteração de datas.
   - Preservação da seleção de dia ativo (`State.selectedDay`) durante transições de filtro.
+- **Máscara Monetária Reversa no Modal de Novo Lançamento**:
+  - Implementação de digitação monetária estilo caixa eletrônico/bancário: digitação inicia em centavos e cresce da direita para a esquerda (`0,00` $\rightarrow$ `0,01` $\rightarrow$ `0,11` $\rightarrow$ `1,11` $\rightarrow$ `11,10`), com suporte completo a backspace e formatação brasileira padrão BRL.
+- **Exclusão de Lançamentos Manuais**:
+  - Adicionado botão de lixeira `🗑️` exclusivo nas linhas identificadas com a tag `Manual`.
+  - Modal de confirmação seguro com resumo dos dados do título (Favorecido, Documento, Valor, Vencimento).
+  - Remoção otimista em memória com recálculo automático de KPIs, tabelas, saldos e gráficos.
+  - Sincronização remota via ação `DELETE_MANUAL_ENTRY` no backend do Google Apps Script (`Code.gs`).
 - **Transição Suave & Debounce Visual**:
   - Adicionado `App.applyFiltersDebounced(300)` com micro-animação na barra superior de progresso (`#loading-bar`) e classe de transição suave `.content-updating`.
   - Atualização in-place do gráfico Chart.js (`chart.update()`) com animação fluida de 350ms em vez de destruição do canvas.
   - Estabilidade de DOM em Contas a Pagar, Contas a Receber e Saldos Diários evitando repaints bruscos.
+- **Remoção do Card "Qtd. Lançamentos" dos Indicadores Executivos**:
+  - Excluído o 4º card executivo (`#kpi-qtd`), simplificando a barra de KPIs para focar nos 3 pilares financeiros essenciais: **Total Entradas**, **Total Saídas** e **Resultado Líquido** (com as quantidades de movimentações preservadas nos subtítulos de entradas e saídas).
+  - Grid reajustado para 3 colunas simétricas (`repeat(3, 1fr)`), com adaptação responsiva limpa e espaçamento harmônico em todas as resoluções.
+- **Responsividade Mobile Completa (Zero Rolagem Lateral)**:
+  - **Contas a Pagar e Contas a Receber em Cards Mobile**: em resoluções móveis ($\le$ 680px), as linhas das tabelas são convertidas em cards estruturados (Favorecido em negrito no topo com Valor em destaque à direita; Histórico no meio; Documento e Ações com Data de Vencimento na base). Preserva interações de inativação, reprogramação (`✏️`) e exclusão (`🗑️`).
+  - **Alertas de Vencimento sem Cortes**: alinhamento estrito dos valores em Reais e contagens de títulos fixados à direita dentro do viewport do celular.
+  - **Saldos Diários por Data Otimizados**: 4 colunas perfeitamente distribuídas (Data com dia da semana integrado, Crédito, Débito e Saldo), eliminando qualquer corte ou necessidade de scroll horizontal.
+  - **Contenção Global**: aplicação de `overflow-x: hidden` e `min-width: 0` nas seções mestras (`html`, `body`, `.content`, `.bottom-row`), impedindo estiramento lateral em qualquer smartphone.
 
 ---
 

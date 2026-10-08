@@ -78,6 +78,22 @@ const Utils = {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
     const y = parseInt(str.slice(0, 4), 10);
     return y >= 2000 && y <= 2099;
+  },
+
+  // Formata sequência de dígitos de centavos para moeda brasileira sem símbolo (ex: '1' -> '0,01', '11' -> '0,11', '111' -> '1,11')
+  formatCentsToBRL(digits) {
+    const cleanDigits = String(digits || '').replace(/\D/g, '');
+    if (!cleanDigits || cleanDigits === '0') return '0,00';
+    const centsNum = parseInt(cleanDigits, 10);
+    const floatVal = centsNum / 100;
+    return floatVal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  },
+
+  // Converte valor formatado em BRL (ex: "10.000,00") de volta para float (10000)
+  parseCurrencyInput(s) {
+    if (!s) return 0;
+    const clean = String(s).replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, '');
+    return parseFloat(clean) || 0;
   }
 };
 

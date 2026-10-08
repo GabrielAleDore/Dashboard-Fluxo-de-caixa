@@ -173,6 +173,28 @@ function doPost(e) {
       return ContentService.createTextOutput(JSON.stringify(response))
         .setMimeType(ContentService.MimeType.JSON);
 
+    } else if (action === 'DELETE_MANUAL_ENTRY') {
+      // payload: { id }
+      if (!payload || !payload.id) {
+        throw new Error('ID do lançamento manual não fornecido.');
+      }
+      ajustes.data.manualEntries = (ajustes.data.manualEntries || []).filter(function(e) {
+        return e.id !== payload.id;
+      });
+      if (ajustes.data.dateOverrides && ajustes.data.dateOverrides[payload.id]) {
+        delete ajustes.data.dateOverrides[payload.id];
+      }
+      saveAjustesData(ajustes.file, ajustes.data);
+
+      const response = {
+        status: 'success',
+        action: action,
+        message: 'Lançamento manual excluído com sucesso.',
+        id: payload.id
+      };
+      return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.JSON);
+
     } else {
       throw new Error('Ação não reconhecida: ' + action);
     }

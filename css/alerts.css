@@ -274,18 +274,137 @@ body.light-theme .saldos-btn-reset-day:hover {
   color: #FFFFFF;
 }
 
-/* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
-  .saldos-table-wrap {
-    overflow-x: auto;
-  }
+/* TAG DE DIA DA SEMANA NO MOBILE */
+.dia-tag-mobile {
+  display: none;
 }
 
 /* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .venc-panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .saldos-table-wrap {
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
 @media (max-width: 640px) {
-  .venc-header { padding: 12px 14px; }
-  .venc-band { padding: 8px 12px; gap: 10px; }
-  .venc-band-val { font-size: 12px; }
+  .venc-header { padding: 10px 14px; }
+  .venc-band {
+    padding: 8px 12px;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .venc-band-label {
+    font-size: 11px;
+    letter-spacing: .3px;
+  }
+  .venc-band-sub {
+    font-size: 9px;
+  }
+  .venc-band-val {
+    font-size: 12px;
+  }
+  .venc-band-cnt {
+    font-size: 9px;
+  }
   .saldos-header-row { padding: 8px 12px; }
-  .saldos-table td, .saldos-table thead th { padding: 7px 8px; font-size: 11px; }
+}
+
+/* CONTROLE DE EXIBIÇÃO DE DATAS */
+.data-short-mobile {
+  display: none;
+}
+.data-full {
+  display: inline;
+}
+
+@media (max-width: 600px) {
+  .data-full {
+    display: none !important;
+  }
+  .data-short-mobile {
+    display: inline !important;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .dia-tag-mobile {
+    display: inline-block;
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    background: rgba(52, 152, 219, 0.18);
+    color: var(--blue);
+    vertical-align: middle;
+    font-weight: 600;
+  }
+  .dia-tag-mobile.today {
+    background: rgba(243, 156, 18, 0.22);
+    color: var(--amber);
+    font-weight: 700;
+  }
+
+  .saldos-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+  .saldos-table th.th-dia,
+  .saldos-table td.dia-label {
+    display: none !important;
+  }
+  .saldos-table th.th-data {
+    width: 25% !important;
+    padding: 6px 2px;
+    font-size: 9px;
+  }
+  .saldos-table th.th-credito {
+    width: 25% !important;
+    padding: 6px 2px;
+    font-size: 9px;
+  }
+  .saldos-table th.th-debito {
+    width: 25% !important;
+    padding: 6px 2px;
+    font-size: 9px;
+  }
+  .saldos-table th.th-saldo {
+    width: 25% !important;
+    padding: 6px 2px;
+    font-size: 9px;
+  }
+
+  .saldos-table td {
+    padding: 6px 2px !important;
+    font-size: 9px !important;
+    letter-spacing: -.3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .saldos-table td.num {
+    font-size: 9px !important;
+  }
+  .saldos-table tfoot td {
+    padding: 6px 2px !important;
+    font-size: 9px !important;
+  }
+  .saldos-table tfoot td.td-foot-label {
+    font-size: 8px !important;
+    letter-spacing: -.3px;
+  }
+}
+
+body.light-theme .dia-tag-mobile {
+  background: #DBEAFE;
+  color: #1D4ED8;
+}
+body.light-theme .dia-tag-mobile.today {
+  background: #FEF3C7;
+  color: #B45309;
 }

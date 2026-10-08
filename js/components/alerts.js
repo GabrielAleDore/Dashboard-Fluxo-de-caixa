@@ -88,17 +88,17 @@ const AlertsComponent = {
           <table class="saldos-table" id="saldos-table">
             <thead>
               <tr>
-                <th style="width:48px;">Dia</th>
-                <th style="width:72px;">Data</th>
-                <th class="num">Crédito</th>
-                <th class="num">Débito</th>
-                <th class="num">Saldo</th>
+                <th class="th-dia" style="width:48px;">Dia</th>
+                <th class="th-data" style="width:72px;">Data</th>
+                <th class="num th-credito">Crédito</th>
+                <th class="num th-debito">Débito</th>
+                <th class="num th-saldo">Saldo</th>
               </tr>
             </thead>
             <tbody id="saldos-table-body"></tbody>
             <tfoot>
               <tr>
-                <td colspan="2">TOTAIS DO PERÍODO</td>
+                <td class="td-foot-label" colspan="2">TOTAIS DO PERÍODO</td>
                 <td class="num green-val" id="foot-saldos-credito">—</td>
                 <td class="num red-val" id="foot-saldos-debito">—</td>
                 <td class="num" id="foot-saldos-final">—</td>
@@ -328,7 +328,11 @@ const AlertsComponent = {
               <span class="dia-name">${dayOfWeek}</span>
               <span class="dia-sel-indicator" style="display:${isSelected ? 'inline-block' : 'none'};" title="Ativo">●</span>
             </td>
-            <td>${Utils.formatDateBR(d.dateObj)}</td>
+            <td class="data-cell">
+              <span class="data-full">${Utils.formatDateBR(d.dateObj)}</span>
+              <span class="data-short-mobile">${Utils.formatDateBR(d.dateObj).slice(0, 5)}</span>
+              <span class="dia-tag-mobile ${isToday ? 'today' : ''}">${isToday ? 'Hoje' : dayNames[d.dateObj.getDay()].slice(0, 3)}</span>
+            </td>
             <td class="num green-val">${Utils.fmt(d.credito)}</td>
             <td class="num red-val">${Utils.fmt(d.debito)}</td>
             <td class="num ${runningSaldo >= 0 ? 'green-val' : 'red-val'}">${Utils.fmt(runningSaldo)}</td>

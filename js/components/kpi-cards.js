@@ -37,12 +37,6 @@ const KpiCardsComponent = {
           <div class="kpi-value" id="kpi-resultado">R$ 0,00</div>
           <div class="kpi-sub" id="kpi-resultado-sub">saldo do período</div>
         </div>
-        <div class="kpi-card amber">
-          <div class="kpi-icon">📋</div>
-          <div class="kpi-label">Qtd. Lançamentos</div>
-          <div class="kpi-value" id="kpi-qtd">0</div>
-          <div class="kpi-sub" id="kpi-qtd-sub">títulos no período</div>
-        </div>
       </div>
     `;
   },
@@ -69,7 +63,6 @@ const KpiCardsComponent = {
     const totalEntrada = activeData.reduce((s, r) => s + r.entrada, 0);
     const totalSaida   = activeData.reduce((s, r) => s + r.saida,   0);
     const resultado    = totalEntrada - totalSaida;
-    const qtd          = activeData.length;
     const qtdE         = activeData.filter(r => r.entrada > 0).length;
     const qtdS         = activeData.filter(r => r.saida > 0).length;
 
@@ -79,24 +72,19 @@ const KpiCardsComponent = {
     const elSaidasSub    = document.getElementById('kpi-saidas-sub');
     const elResultado    = document.getElementById('kpi-resultado');
     const elResultadoSub = document.getElementById('kpi-resultado-sub');
-    const elQtd          = document.getElementById('kpi-qtd');
-    const elQtdSub       = document.getElementById('kpi-qtd-sub');
 
     if (elEntradas)     elEntradas.textContent     = Utils.fmt(totalEntrada);
     if (elSaidas)       elSaidas.textContent       = Utils.fmt(totalSaida);
     if (elResultado)    elResultado.textContent    = Utils.fmt(resultado);
-    if (elQtd)          elQtd.textContent          = qtd.toLocaleString('pt-BR');
 
     if (dayInfo) {
       if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''} no dia`;
       if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''} no dia`;
       if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? `▲ saldo de ${dayInfo.shortName}` : `▼ saldo de ${dayInfo.shortName}`;
-      if (elQtdSub)       elQtdSub.textContent      = `títulos em ${dayInfo.formattedDate}` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
     } else {
       if (elEntradasSub)  elEntradasSub.textContent  = `${qtdE} lançamento${qtdE !== 1 ? 's' : ''}`;
       if (elSaidasSub)    elSaidasSub.textContent    = `${qtdS} lançamento${qtdS !== 1 ? 's' : ''}`;
       if (elResultadoSub) elResultadoSub.textContent = resultado >= 0 ? '▲ saldo positivo' : '▼ saldo negativo';
-      if (elQtdSub)       elQtdSub.textContent      = `títulos no período` + (ignoredCount > 0 ? ` (${ignoredCount} inativado${ignoredCount > 1 ? 's' : ''})` : '');
     }
 
     // Atualização do banner de escopo ativo
