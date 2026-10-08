@@ -153,6 +153,7 @@ const ChartsComponent = {
       }
       if (chart.options.scales && chart.options.scales.x) {
         chart.options.scales.x.ticks.color = theme.textColor;
+        chart.options.scales.x.ticks.maxTicksLimit = window.innerWidth <= 680 ? 6 : 14;
         chart.options.scales.x.grid.color = theme.gridColor;
       }
       if (chart.options.scales && chart.options.scales.y) {
@@ -163,6 +164,24 @@ const ChartsComponent = {
       chart.update();
       return;
     }
+
+    const datalabelsConfig = {
+      display: function(context) {
+        const count = context.chart.data.labels.length;
+        const isMobile = window.innerWidth <= 680;
+        if (isMobile) {
+          // No celular, oculta rótulos sobre as barras se houver mais de 6 barras para evitar colisão visual
+          return count <= 6;
+        }
+        return count <= 18;
+      },
+      anchor: 'end',
+      align: 'top',
+      offset: 2,
+      color: theme.textColor,
+      font: { size: 9, weight: '600', family: 'Inter' },
+      formatter: v => v > 0 ? Utils.fmtK(v) : ''
+    };
 
     State.chartColunasInstance = new Chart(ctx, {
       type: 'bar',
@@ -176,11 +195,7 @@ const ChartsComponent = {
             borderColor: borderSaidas,
             borderWidth: bwSaidas,
             borderRadius: 6,
-            datalabels: {
-              anchor: 'end', align: 'top',
-              color: theme.textColor, font: { size: 10, weight: '600', family: 'Inter' },
-              formatter: v => v > 0 ? Utils.fmtK(v) : ''
-            }
+            datalabels: datalabelsConfig
           },
           {
             label: 'Entradas',
@@ -189,11 +204,7 @@ const ChartsComponent = {
             borderColor: borderEntradas,
             borderWidth: bwEntradas,
             borderRadius: 6,
-            datalabels: {
-              anchor: 'end', align: 'top',
-              color: theme.textColor, font: { size: 10, weight: '600', family: 'Inter' },
-              formatter: v => v > 0 ? Utils.fmtK(v) : ''
-            }
+            datalabels: datalabelsConfig
           }
         ]
       },
@@ -214,16 +225,62 @@ const ChartsComponent = {
           }
         },
         plugins: {
-          legend: { labels: { color: theme.textColor, font: { size: 11, family: 'Inter' } } },
+          legend: {
+            labels: {
+              color: theme.textColor,
+              font: { size: window.innerWidth <= 680 ? 10 : 11, family: 'Inter' },
+              boxWidth: 12,
+              padding: 10
+            }
+          },
           tooltip: {
-            backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder, borderWidth: 1,
-            titleColor: theme.tooltipTitle, bodyColor: theme.tooltipBody,
-            callbacks: { label: ctx => ` ${ctx.dataset.label}: ${Utils.fmt(ctx.raw)}` }
+            backgroundColor: theme.tooltipBg,
+            borderColor: theme.tooltipBorder,
+            borderWidth: 1,
+            titleColor: theme.tooltipTitle,
+            bodyColor: theme.tooltipBody,
+            padding: 10,
+            cornerRadius: 8,
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 11 },
+            callbacks: {
+              title: (items) => {
+                if (!items.length) return '';
+                const idx = items[0].dataIndex;
+                const current = ChartsComponent._currentSorted || sorted;
+                if (current && current[idx]) {
+                  const [key] = current[idx];
+                  const [y, m, d] = key.split('-');
+                  const dObj = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10), 12, 0, 0);
+                  const dayNames = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                  return `${dayNames[dObj.getDay()]}, ${Utils.formatDateBR(dObj)}`;
+                }
+                return items[0].label;
+              },
+              label: ctx => ` ${ctx.dataset.label}: ${Utils.fmt(ctx.raw)}`
+            }
           }
         },
         scales: {
-          x: { ticks: { color: theme.textColor, font: { size: 11, family: 'Inter' } }, grid: { color: theme.gridColor } },
-          y: { ticks: { color: theme.textColor, font: { size: 10, family: 'Inter' }, callback: v => Utils.fmtK(v) }, grid: { color: theme.gridColor } }
+          x: {
+            ticks: {
+              color: theme.textColor,
+              font: { size: window.innerWidth <= 680 ? 9.5 : 11, family: 'Inter' },
+              autoSkip: true,
+              maxTicksLimit: window.innerWidth <= 680 ? 6 : 14,
+              maxRotation: 0,
+              minRotation: 0
+            },
+            grid: { color: theme.gridColor }
+          },
+          y: {
+            ticks: {
+              color: theme.textColor,
+              font: { size: 9.5, family: 'Inter' },
+              callback: v => Utils.fmtK(v)
+            },
+            grid: { color: theme.gridColor }
+          }
         }
       }
     });

@@ -398,10 +398,12 @@ const App = {
     // Popula dropdown de credores no cabeçalho
     HeaderComponent.populateCredores(data);
 
-    // Ajusta o intervalo padrão de datas
+    // Ajusta o intervalo padrão de datas: da data mais antiga até a data atual (hoje)
     const dates = data.map(r => r.vencimento).filter(Boolean).sort((a, b) => a - b);
     if (dates.length) {
-      HeaderComponent.setDateRange(dates[0], dates[dates.length - 1]);
+      const minDate = dates[0];
+      const maxDate = new Date();
+      HeaderComponent.setDateRange(minDate, maxDate);
     }
 
     this.applyFilters();
@@ -499,7 +501,9 @@ const App = {
   resetFilters() {
     const dates = State.allData.map(r => r.vencimento).sort((a, b) => a - b);
     if (dates.length) {
-      HeaderComponent.setDateRange(dates[0], dates[dates.length - 1]);
+      const minDate = dates[0];
+      const maxDate = new Date();
+      HeaderComponent.setDateRange(minDate, maxDate);
     }
 
     if (typeof HeaderComponent !== 'undefined' && HeaderComponent.resetCredor) {

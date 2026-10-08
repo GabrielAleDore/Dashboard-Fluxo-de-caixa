@@ -5,6 +5,20 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.7.1] - 2026-10-08
+
+### Adicionado / Corrigido
+- **Período Padrão Inicial da Data Mais Antiga até Hoje**:
+  - Configurado para que a data inicial do filtro (`date-from`) seja a data de vencimento mais antiga encontrada no arquivo CSV (`dates[0]`), e a data final (`date-to`) seja automaticamente a data atual (`new Date()`, hoje).
+  - Aplicado de forma consistente tanto na carga inicial (`App.loadData`) quanto na restauração de filtros com "↺ Limpar" (`App.resetFilters`).
+- **Otimização Visual do Gráfico de Desembolsos no Celular**:
+  - **Eliminação de Colisão de Rótulos (*Datalabels*)**: ocultados rótulos automáticos sobre as barras quando visualizado em telas móveis ($\le$ 680px) com muitas datas, eliminando o borrão escuro de texto acumulado.
+  - **Eixo X Adaptativo**: habilitado `autoSkip: true` com limite de 6 datas espaçadas no mobile (`maxTicksLimit: 6`), mantendo a linha de tempo perfeitamente legível.
+  - **Tooltips Informativos no Toque**: ao tocar em qualquer barra no celular, o tooltip exibe dia da semana, data formatada e os valores exatos de Entradas e Saídas em R$.
+  - **Altura Otimizada**: altura do painel ajustada para 300px no mobile, proporcionando proporção confortável às colunas.
+
+---
+
 ## [2.7.0] - 2026-10-08
 
 ### Adicionado / Corrigido
