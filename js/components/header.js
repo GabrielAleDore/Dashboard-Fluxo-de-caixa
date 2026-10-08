@@ -44,11 +44,11 @@ const HeaderComponent = {
             <span class="filter-label">📅 Período (Vencimento)</span>
             <div class="filter-date-row">
               <div class="date-input-wrap">
-                <input type="date" id="date-from" class="filter-input date-click-anywhere" title="Clique para escolher a data ou digite">
+                <input type="date" id="date-from" class="filter-input filter-input-date" title="Digite a data ou clique no ícone de calendário">
               </div>
               <span class="filter-sep">→</span>
               <div class="date-input-wrap">
-                <input type="date" id="date-to" class="filter-input date-click-anywhere" title="Clique para escolher a data ou digite">
+                <input type="date" id="date-to" class="filter-input filter-input-date" title="Digite a data ou clique no ícone de calendário">
               </div>
             </div>
           </div>
@@ -189,36 +189,30 @@ const HeaderComponent = {
     const toInput = document.getElementById('date-to');
     const resetBtn = document.getElementById('btn-reset-filters');
 
-    // Filtros de data: abrir seletor visual em qualquer clique, mas permitir digitação manual
-    const setupDatePicker = (input) => {
+    // Filtros de data: digitação direta via teclado e abertura do calendário exclusivamente pelo ícone nativo
+    const handleDateInput = (input, isTyping = false) => {
       if (!input) return;
-      input.addEventListener('click', () => {
-        if (typeof input.showPicker === 'function') {
-          try {
-            input.showPicker();
-          } catch (e) {
-            // Ignora se o picker nativo já estiver aberto
-          }
-        }
-      });
-    };
-    setupDatePicker(fromInput);
-    setupDatePicker(toInput);
-
-    if (fromInput) {
-      fromInput.addEventListener('change', () => {
+      const val = input.value;
+      // Não dispara filtro se o valor for intermediário/incompleto (ex.: ano 0002 ao digitar 2026)
+      if (!Utils.isValidDateInput(val)) {
+        return;
+      }
+      if (State.selectedAlertFilter) {
         State.selectedAlertFilter = null;
         if (typeof AlertsComponent !== 'undefined') AlertsComponent.updateUI();
-        App.applyFilters();
-      });
+      }
+      const delay = isTyping ? 350 : 50;
+      App.applyFiltersDebounced(delay, input.id);
+    };
+
+    if (fromInput) {
+      fromInput.addEventListener('input', () => handleDateInput(fromInput, true));
+      fromInput.addEventListener('change', () => handleDateInput(fromInput, false));
     }
 
     if (toInput) {
-      toInput.addEventListener('change', () => {
-        State.selectedAlertFilter = null;
-        if (typeof AlertsComponent !== 'undefined') AlertsComponent.updateUI();
-        App.applyFilters();
-      });
+      toInput.addEventListener('input', () => handleDateInput(toInput, true));
+      toInput.addEventListener('change', () => handleDateInput(toInput, false));
     }
 
     if (resetBtn) {

@@ -69,5 +69,15 @@ const Utils = {
     const g = (num >> 8) & 255;
     const b = num & 255;
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  },
+
+  // Valida se a string é uma data válida completa para filtro (YYYY-MM-DD com ano entre 2000 e 2099, ou vazia)
+  isValidDateInput(s) {
+    if (!s || String(s).trim() === '') return true;
+    const str = String(s).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+    const y = parseInt(str.slice(0, 4), 10);
+    return y >= 2000 && y <= 2099;
   }
 };
+

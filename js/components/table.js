@@ -145,11 +145,12 @@ const TableComponent = {
     const ignoredRecCount = receberRows.length - activeReceber.length;
 
     if (tbodyReceber) {
-      if (receberRows.length === 0) {
-        const emptyMsg = selectedDay ? 'ℹ️ Nenhum recebimento para a data selecionada' : '✅ Nenhum recebimento no período';
-        tbodyReceber.innerHTML = `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`;
-      } else {
-        tbodyReceber.innerHTML = receberRows.map(r => this.renderRow(r, 'receber')).join('');
+      const emptyMsg = selectedDay ? 'ℹ️ Nenhum recebimento para a data selecionada' : '✅ Nenhum recebimento no período';
+      const newHtml = receberRows.length === 0
+        ? `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`
+        : receberRows.map(r => this.renderRow(r, 'receber')).join('');
+      if (tbodyReceber.innerHTML !== newHtml) {
+        tbodyReceber.innerHTML = newHtml;
       }
     }
     if (totalRecVal) totalRecVal.textContent = Utils.fmt(sumReceber);
@@ -168,11 +169,12 @@ const TableComponent = {
     const ignoredPagCount = pagarRows.length - activePagar.length;
 
     if (tbodyPagar) {
-      if (pagarRows.length === 0) {
-        const emptyMsg = selectedDay ? 'ℹ️ Nenhum pagamento para a data selecionada' : '✅ Nenhum pagamento no período';
-        tbodyPagar.innerHTML = `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`;
-      } else {
-        tbodyPagar.innerHTML = pagarRows.map(r => this.renderRow(r, 'pagar')).join('');
+      const emptyMsg = selectedDay ? 'ℹ️ Nenhum pagamento para a data selecionada' : '✅ Nenhum pagamento no período';
+      const newHtml = pagarRows.length === 0
+        ? `<tr><td colspan="5" class="mov-empty">${emptyMsg}</td></tr>`
+        : pagarRows.map(r => this.renderRow(r, 'pagar')).join('');
+      if (tbodyPagar.innerHTML !== newHtml) {
+        tbodyPagar.innerHTML = newHtml;
       }
     }
     if (totalPagVal) totalPagVal.textContent = Utils.fmt(sumPagar);

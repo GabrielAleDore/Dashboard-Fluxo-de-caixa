@@ -248,8 +248,31 @@ body.light-theme .brand-highlight {
   position: relative;
   display: inline-flex;
 }
-.filter-input.date-click-anywhere {
+.filter-input-date {
+  cursor: text;
+  color-scheme: dark;
+}
+
+body.light-theme .filter-input-date {
+  color-scheme: light;
+}
+
+.filter-input-date::-webkit-calendar-picker-indicator {
   cursor: pointer;
+  opacity: 0.8;
+  padding: 2px;
+  border-radius: 4px;
+  transition: opacity .15s ease, transform .15s ease, background-color .15s ease;
+}
+
+.filter-input-date::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.15);
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+body.light-theme .filter-input-date::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(37, 99, 235, 0.12);
 }
 
 .filter-credor-row {

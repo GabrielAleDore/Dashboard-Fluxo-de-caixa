@@ -5,6 +5,22 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.7.0] - 2026-10-08
+
+### Adicionado / Corrigido
+- **Digitação Direta no Filtro de Período & Abertura Exclusiva pelo Ícone de Calendário**:
+  - Restringida a abertura do seletor gráfico de data exclusivamente ao clique sobre o ícone nativo (`::-webkit-calendar-picker-indicator`), liberando a caixa de texto para digitação direta via teclado sem abrir o pop-up indesejado.
+- **Validação de Sanidade Temporal & Prevenção de Dados Sumindo**:
+  - Implementação de `Utils.isValidDateInput()`: ignora eventos emitidos durante a digitação de anos intermediários (ex.: `0002` ao digitar `2026`), mantendo a integridade visual da tela.
+  - Proteção contra inversão de período (`dateFrom > dateTo`): auto-sincronização automática para evitar que as tabelas e saldos fiquem vazios durante a alteração de datas.
+  - Preservação da seleção de dia ativo (`State.selectedDay`) durante transições de filtro.
+- **Transição Suave & Debounce Visual**:
+  - Adicionado `App.applyFiltersDebounced(300)` com micro-animação na barra superior de progresso (`#loading-bar`) e classe de transição suave `.content-updating`.
+  - Atualização in-place do gráfico Chart.js (`chart.update()`) com animação fluida de 350ms em vez de destruição do canvas.
+  - Estabilidade de DOM em Contas a Pagar, Contas a Receber e Saldos Diários evitando repaints bruscos.
+
+---
+
 ## [2.6.0] - 2026-09-30
 
 ### Adicionado

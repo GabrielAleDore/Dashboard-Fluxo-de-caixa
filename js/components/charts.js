@@ -95,9 +95,7 @@ const ChartsComponent = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    if (State.chartColunasInstance) {
-      State.chartColunasInstance.destroy();
-    }
+    this._currentSorted = sorted;
 
     const colorSaida = State.chartColunasColor || '#E74C3C';
     const theme = this.getThemeColors();
@@ -122,6 +120,49 @@ const ChartsComponent = {
       return k === selDay ? '#FFFFFF' : 'rgba(46, 204, 113, 0.3)';
     });
     const bwEntradas = sorted.map(([k]) => (selDay && k === selDay ? 2 : 1));
+
+    // Se a instância já existe, atualiza dados in-place com animação suave e sem piscar/destruir o canvas
+    if (State.chartColunasInstance) {
+      const chart = State.chartColunasInstance;
+      chart.data.labels = labels;
+
+      chart.data.datasets[0].data = saidas;
+      chart.data.datasets[0].backgroundColor = bgSaidas;
+      chart.data.datasets[0].borderColor = borderSaidas;
+      chart.data.datasets[0].borderWidth = bwSaidas;
+      if (chart.data.datasets[0].datalabels) {
+        chart.data.datasets[0].datalabels.color = theme.textColor;
+      }
+
+      chart.data.datasets[1].data = entradas;
+      chart.data.datasets[1].backgroundColor = bgEntradas;
+      chart.data.datasets[1].borderColor = borderEntradas;
+      chart.data.datasets[1].borderWidth = bwEntradas;
+      if (chart.data.datasets[1].datalabels) {
+        chart.data.datasets[1].datalabels.color = theme.textColor;
+      }
+
+      if (chart.options.plugins && chart.options.plugins.legend) {
+        chart.options.plugins.legend.labels.color = theme.textColor;
+      }
+      if (chart.options.plugins && chart.options.plugins.tooltip) {
+        chart.options.plugins.tooltip.backgroundColor = theme.tooltipBg;
+        chart.options.plugins.tooltip.borderColor = theme.tooltipBorder;
+        chart.options.plugins.tooltip.titleColor = theme.tooltipTitle;
+        chart.options.plugins.tooltip.bodyColor = theme.tooltipBody;
+      }
+      if (chart.options.scales && chart.options.scales.x) {
+        chart.options.scales.x.ticks.color = theme.textColor;
+        chart.options.scales.x.grid.color = theme.gridColor;
+      }
+      if (chart.options.scales && chart.options.scales.y) {
+        chart.options.scales.y.ticks.color = theme.textColor;
+        chart.options.scales.y.grid.color = theme.gridColor;
+      }
+
+      chart.update();
+      return;
+    }
 
     State.chartColunasInstance = new Chart(ctx, {
       type: 'bar',
@@ -159,11 +200,16 @@ const ChartsComponent = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 350,
+          easing: 'easeOutQuart'
+        },
         onClick: (evt, elements) => {
           if (elements && elements.length > 0) {
             const idx = elements[0].index;
-            if (sorted[idx] && typeof AlertsComponent !== 'undefined') {
-              AlertsComponent.selectDay(sorted[idx][0]);
+            const current = ChartsComponent._currentSorted || sorted;
+            if (current && current[idx] && typeof AlertsComponent !== 'undefined') {
+              AlertsComponent.selectDay(current[idx][0]);
             }
           }
         },

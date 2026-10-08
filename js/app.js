@@ -364,7 +364,7 @@ const App = {
     this.applyFilters();
   },
 
-  applyFilters() {
+  applyFilters(sourceId = null) {
     const fromInput = document.getElementById('date-from');
     const toInput = document.getElementById('date-to');
     const credSel = document.getElementById('credor-filter');
@@ -373,10 +373,32 @@ const App = {
     const toVal = toInput ? toInput.value : '';
     const credorVal = credSel ? credSel.value : '';
 
-    const dateFrom = fromVal ? Utils.parseDate(fromVal) : null;
-    if (dateFrom) dateFrom.setHours(0, 0, 0, 0);
+    // Validação de sanidade: não aplicar filtros se a data estiver no meio da digitação (ex.: ano 0002 digitado no meio de 2026)
+    if (!Utils.isValidDateInput(fromVal) || !Utils.isValidDateInput(toVal)) {
+      return; // Mantém a visualização atual estável enquanto o usuário digita
+    }
 
-    const dateTo = toVal ? Utils.parseDate(toVal) : null;
+    let dateFrom = fromVal ? Utils.parseDate(fromVal) : null;
+    let dateTo = toVal ? Utils.parseDate(toVal) : null;
+
+    // Proteção contra inversão de datas durante digitação (dateFrom > dateTo)
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+      if (sourceId === 'date-from' && toInput) {
+        // Usuário aumentou a data inicial além da final: sincroniza a final para acompanhar
+        toInput.value = fromInput.value;
+        dateTo = Utils.parseDate(fromInput.value);
+      } else if (sourceId === 'date-to' && fromInput) {
+        // Usuário diminuiu a data final para antes da inicial: sincroniza a inicial para acompanhar
+        fromInput.value = toInput.value;
+        dateFrom = Utils.parseDate(toInput.value);
+      } else {
+        // Caso genérico: sincroniza dateTo com dateFrom
+        if (toInput && fromInput) toInput.value = fromInput.value;
+        dateTo = new Date(dateFrom.getTime());
+      }
+    }
+
+    if (dateFrom) dateFrom.setHours(0, 0, 0, 0);
     if (dateTo) dateTo.setHours(23, 59, 59, 999);
 
     State.dateFrom = dateFrom;
@@ -399,13 +421,36 @@ const App = {
       return true;
     });
 
-    // Se o dia selecionado não constar mais nos dados filtrados, limpa
-    if (State.selectedDay && !State.filteredData.some(r => Utils.toInputDate(r.vencimento) === State.selectedDay)) {
+    // Se o dia selecionado não constar mais nos dados filtrados, limpa SOMENTE se houver dados filtrados
+    if (State.selectedDay && State.filteredData.length > 0 && !State.filteredData.some(r => Utils.toInputDate(r.vencimento) === State.selectedDay)) {
       State.selectedDay = null;
     }
 
     State.currentPage = 1;
     this.renderAll();
+  },
+
+  applyFiltersDebounced(delay = 300, sourceId = null) {
+    if (this._filterDebounceTimer) {
+      clearTimeout(this._filterDebounceTimer);
+    }
+
+    // Feedback visual sutil imediato: barra de progresso suave e transição leve
+    const content = document.querySelector('.content');
+    const bar = document.getElementById('loading-bar');
+    if (content) content.classList.add('content-updating');
+    if (bar) bar.style.width = '35%';
+
+    this._filterDebounceTimer = setTimeout(() => {
+      this.applyFilters(sourceId);
+      if (bar) {
+        bar.style.width = '100%';
+        setTimeout(() => { bar.style.width = '0'; }, 300);
+      }
+      if (content) {
+        setTimeout(() => content.classList.remove('content-updating'), 150);
+      }
+    }, delay);
   },
 
   resetFilters() {

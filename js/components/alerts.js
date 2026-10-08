@@ -307,12 +307,12 @@ const AlertsComponent = {
 
     const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
-    saldosBody.innerHTML = '';
+    let rowsHtml = '';
 
     if (sortedDates.length === 0) {
-      saldosBody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray);">Nenhum lançamento no período</td></tr>`;
+      rowsHtml = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray);">Nenhum lançamento no período</td></tr>`;
     } else {
-      sortedDates.forEach(d => {
+      rowsHtml = sortedDates.map(d => {
         runningSaldo += (d.credito - d.debito);
         totalCredito += d.credito;
         totalDebito  += d.debito;
@@ -320,25 +320,25 @@ const AlertsComponent = {
         const isToday = Utils.toInputDate(d.dateObj) === Utils.toInputDate(anchor);
         const dayOfWeek = isToday ? 'Hoje' : dayNames[d.dateObj.getDay()];
         const isSelected = State.selectedDay === d.key;
+        const titleText = isSelected ? 'Dia selecionado. Clique novamente para desmarcar.' : 'Clique para ver contas a pagar e receber deste dia';
 
-        const tr = document.createElement('tr');
-        tr.className = `saldo-row ${isSelected ? 'selected-day-row' : ''}`;
-        tr.setAttribute('data-date', d.key);
-        tr.setAttribute('title', isSelected ? 'Dia selecionado. Clique novamente para desmarcar.' : 'Clique para ver contas a pagar e receber deste dia');
-        tr.onclick = () => AlertsComponent.selectDay(d.key);
-
-        tr.innerHTML = `
-          <td class="dia-label" style="${isToday ? 'color:var(--amber);font-weight:700;' : ''}">
-            <span class="dia-name">${dayOfWeek}</span>
-            <span class="dia-sel-indicator" style="display:${isSelected ? 'inline-block' : 'none'};" title="Ativo">●</span>
-          </td>
-          <td>${Utils.formatDateBR(d.dateObj)}</td>
-          <td class="num green-val">${Utils.fmt(d.credito)}</td>
-          <td class="num red-val">${Utils.fmt(d.debito)}</td>
-          <td class="num ${runningSaldo >= 0 ? 'green-val' : 'red-val'}">${Utils.fmt(runningSaldo)}</td>
+        return `
+          <tr class="saldo-row ${isSelected ? 'selected-day-row' : ''}" data-date="${d.key}" title="${titleText}" onclick="AlertsComponent.selectDay('${d.key}')">
+            <td class="dia-label" style="${isToday ? 'color:var(--amber);font-weight:700;' : ''}">
+              <span class="dia-name">${dayOfWeek}</span>
+              <span class="dia-sel-indicator" style="display:${isSelected ? 'inline-block' : 'none'};" title="Ativo">●</span>
+            </td>
+            <td>${Utils.formatDateBR(d.dateObj)}</td>
+            <td class="num green-val">${Utils.fmt(d.credito)}</td>
+            <td class="num red-val">${Utils.fmt(d.debito)}</td>
+            <td class="num ${runningSaldo >= 0 ? 'green-val' : 'red-val'}">${Utils.fmt(runningSaldo)}</td>
+          </tr>
         `;
-        saldosBody.appendChild(tr);
-      });
+      }).join('');
+    }
+
+    if (saldosBody.innerHTML !== rowsHtml) {
+      saldosBody.innerHTML = rowsHtml;
     }
 
     // Totais no rodapé

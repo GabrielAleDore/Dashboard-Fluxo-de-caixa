@@ -80,7 +80,24 @@ body {
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
+  transition: opacity .22s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.content.content-updating {
+  opacity: 0.78;
+}
+
+/* Transições suaves para tabelas, cards e números */
+.mov-table tbody tr,
+.saldos-table tbody tr {
+  transition: background-color .18s ease, opacity .18s ease;
+}
+
+.kpi-card,
+.venc-band {
+  transition: transform .15s ease, background-color .2s ease, border-color .2s ease;
+}
+
 
 .bottom-row {
   display: grid;
