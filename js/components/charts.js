@@ -39,6 +39,50 @@ const ChartsComponent = {
     `;
 
     this.setupResizeObserver();
+    this.setupDragResize();
+  },
+
+  setupDragResize() {
+    const handle = document.querySelector('#chart-panel-desembolsos .chart-drag-handle');
+    const panel = document.getElementById('chart-panel-desembolsos');
+    if (!handle || !panel) return;
+
+    let isDragging = false;
+    let startY = 0;
+    let startHeight = 0;
+
+    const onPointerDown = (e) => {
+      isDragging = true;
+      startY = e.clientY;
+      startHeight = panel.offsetHeight;
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+      handle.classList.add('dragging');
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      const delta = e.clientY - startY;
+      const newHeight = Math.max(220, Math.min(600, startHeight + delta));
+      panel.style.height = `${newHeight}px`;
+      if (State.chartColunasInstance) {
+        State.chartColunasInstance.resize();
+      }
+    };
+
+    const onPointerUp = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = '';
+      handle.classList.remove('dragging');
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
+
+    handle.addEventListener('pointerdown', onPointerDown);
   },
 
   setupResizeObserver() {

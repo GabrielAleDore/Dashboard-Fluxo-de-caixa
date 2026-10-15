@@ -10,8 +10,8 @@
 - **Stack Principal**: HTML5, CSS3 Moderno (Vanilla com CSS Variables), JavaScript ES6+ (Sem frameworks pesados)
 - **Bibliotecas Externas**: PapaParse v5.4.1, Chart.js v4.4.0, ChartDataLabels v2.2.0, Google Fonts (Inter & Roboto Mono)
 - **Persistência**: LocalStorage (Configurações visuais, preferências de tema e paleta de cores)
-- **Versionamento**: SemVer 2.0.0 (`v2.6.0`), documentado em `CHANGELOG.md`
-- **Mecanismo de Cache**: Versionamento de query string (`?v=2.8`)
+- **Versionamento**: SemVer 2.0.0 (`v2.8.0`), documentado em `CHANGELOG.md`
+- **Mecanismo de Cache**: Versionamento de query string (`?v=2.8.0`)
 
 ---
 
@@ -84,21 +84,26 @@ A estrutura do projeto é rigorosamente modularizada em responsabilidades única
 ```
 ├── index.html                   # Documento raiz principal da aplicação
 ├── dashboard.html               # Espelho de index.html para rotas alternativas
+├── scripts/                     # Utilitários de linha de comando para o administrador
+│   └── criar_usuario.js         # Gerador de hash SHA-256 e snippet de cadastro de usuários
 ├── google-apps-script/          # Backend Serverless Google Drive API
 │   └── Code.gs                  # Web App doGet(): varredura do CSV mais recente e resposta CORS JSON
 ├── css/                         # Camada de estilos (Design System)
 │   ├── main.css                 # Variáveis CSS, reset, loading bar e layout do dashboard
-│   ├── header.css               # Estilos da identidade institucional, badge de saúde e combobox
+│   ├── auth.css                 # Estilos da tela de login fullscreen Agro Dark e glassmorphism
+│   ├── header.css               # Estilos da identidade institucional, badge de saúde e logout
 │   ├── kpis.css                 # Estilos dos 4 cards executivos
 │   ├── alerts.css               # Faixas de alertas e tabela de saldos diários
 │   ├── table.css                # Cards de Contas a Receber e Contas a Pagar
 │   └── charts.css               # Gráficos, ferramentas de cores e alças de redimensionamento
 └── js/                          # Camada de lógica e scripts modulares
-    ├── app.js                   # Orquestrador central e sincronização com Google Drive (fetchDriveData)
-    ├── state.js                 # Armazenamento e estado compartilhado (fileMetadata e driveApiUrl)
+    ├── auth-config.js           # Lista de credenciais criptografadas e configurações de segurança
+    ├── app.js                   # Orquestrador central, gatekeeping de acesso e fetchDriveData
+    ├── state.js                 # Armazenamento e estado compartilhado (currentUser, fileMetadata)
     ├── csv-parser.js            # Mecanismo de parsing, limpeza e normalização do CSV
-    ├── utils.js                 # Utilitários de formatação de moedas, datas e cores
+    ├── utils.js                 # Utilitários de formatação de moedas, datas, cores e escapeHtml
     └── components/              # Componentes de interface independentes
+        ├── auth.js              # Camada de autenticação client-side (WebCrypto SHA-256)
         ├── header.js            # Cabeçalho, badges de status, botões de ação e alternador de tema
         ├── kpi-cards.js         # Cards com valores e contadores agregados
         ├── alerts.js            # Alertas temporais e Tabela de Saldos Diários

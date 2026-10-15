@@ -1,6 +1,6 @@
 /**
  * KPI CARDS COMPONENT
- * Renderiza e atualiza os 4 cards de indicadores executivos
+ * Renderiza e atualiza os 3 cards de indicadores executivos
  */
 
 const KpiCardsComponent = {
@@ -58,7 +58,6 @@ const KpiCardsComponent = {
     }
 
     const activeData = State.getActiveData(effectiveData);
-    const ignoredCount = effectiveData.length - activeData.length;
 
     const totalEntrada = activeData.reduce((s, r) => s + r.entrada, 0);
     const totalSaida   = activeData.reduce((s, r) => s + r.saida,   0);

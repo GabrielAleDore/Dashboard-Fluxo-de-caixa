@@ -18,11 +18,28 @@ const Utils = {
     return v.toLocaleString('pt-BR', { minimumFractionDigits: 0 });
   },
 
+  // Escapa caracteres especiais para inserção segura em HTML e atributos
+  escapeHtml(str) {
+    if (str === undefined || str === null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
   // Converte string para número (suporta formato BR 1.000,00 e formato US 1000.00)
   parseNum(s) {
     if (s === undefined || s === null || s === '') return 0;
     s = String(s).trim();
+    // Padrão de milhar brasileiro sem decimais (ex: 1.000 ou 10.000 ou 1.234.567)
+    if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) {
+      return parseFloat(s.replace(/\./g, '')) || 0;
+    }
+    // Formato numérico simples padrão US (ex: 1000 ou 1000.50)
     if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    // Formato brasileiro padrão com decimais (ex: 1.000,50 ou 50,20)
     return parseFloat(s.replace(/\./g, '').replace(',', '.')) || 0;
   },
 

@@ -119,13 +119,20 @@ const AlertsComponent = {
   matchesAlert(record, alertType, anchor) {
     if (!alertType) return true;
     if (record.saida <= 0) return false;
+
+    const todayStr = Utils.toInputDate(anchor);
+    const vencStr  = Utils.toInputDate(record.vencimento);
+    if (!vencStr) return false;
+
     const d7  = new Date(anchor); d7.setDate(anchor.getDate() + 7);
     const d30 = new Date(anchor); d30.setDate(anchor.getDate() + 30);
+    const d7Str  = Utils.toInputDate(d7);
+    const d30Str = Utils.toInputDate(d30);
 
-    if (alertType === 'vencido') return record.vencimento < anchor;
-    if (alertType === 'hoje') return Utils.toInputDate(record.vencimento) === Utils.toInputDate(anchor);
-    if (alertType === '7d') return record.vencimento > anchor && record.vencimento <= d7;
-    if (alertType === '30d') return record.vencimento > d7 && record.vencimento <= d30;
+    if (alertType === 'vencido') return vencStr < todayStr;
+    if (alertType === 'hoje')    return vencStr === todayStr;
+    if (alertType === '7d')      return vencStr > todayStr && vencStr <= d7Str;
+    if (alertType === '30d')     return vencStr > d7Str && vencStr <= d30Str;
     return true;
   },
 
@@ -235,18 +242,21 @@ const AlertsComponent = {
     const rawBase = selectedCredor ? allData.filter(r => r.credor === selectedCredor) : allData;
     const base = State.getActiveData(rawBase);
     const anchor = this.getAnchor();
+    const todayStr = Utils.toInputDate(anchor);
     const d7  = new Date(anchor); d7.setDate(anchor.getDate() + 7);
     const d30 = new Date(anchor); d30.setDate(anchor.getDate() + 30);
+    const d7Str  = Utils.toInputDate(d7);
+    const d30Str = Utils.toInputDate(d30);
 
     const badge = document.getElementById('venc-today-badge');
     if (badge) {
       badge.textContent = '📅 Hoje: ' + anchor.toLocaleDateString('pt-BR');
     }
 
-    const vencidos = base.filter(r => r.saida > 0 && r.vencimento < anchor);
-    const hoje     = base.filter(r => r.saida > 0 && Utils.toInputDate(r.vencimento) === Utils.toInputDate(anchor));
-    const prox7    = base.filter(r => r.saida > 0 && r.vencimento > anchor && r.vencimento <= d7);
-    const prox30   = base.filter(r => r.saida > 0 && r.vencimento > d7 && r.vencimento <= d30);
+    const vencidos = base.filter(r => r.saida > 0 && Utils.toInputDate(r.vencimento) < todayStr);
+    const hoje     = base.filter(r => r.saida > 0 && Utils.toInputDate(r.vencimento) === todayStr);
+    const prox7    = base.filter(r => r.saida > 0 && Utils.toInputDate(r.vencimento) > todayStr && Utils.toInputDate(r.vencimento) <= d7Str);
+    const prox30   = base.filter(r => r.saida > 0 && Utils.toInputDate(r.vencimento) > d7Str && Utils.toInputDate(r.vencimento) <= d30Str);
 
     const sumSaida = arr => arr.reduce((s, r) => s + r.saida, 0);
 
@@ -265,13 +275,15 @@ const AlertsComponent = {
     setBand('venc-val-7d',      'venc-cnt-7d',      prox7);
     setBand('venc-val-30d',     'venc-cnt-30d',     prox30);
 
+    const d1 = new Date(anchor); d1.setDate(anchor.getDate() + 1);
+    const d8 = new Date(anchor); d8.setDate(anchor.getDate() + 8);
     const elHojeDate = document.getElementById('venc-hoje-date');
     const el7dRange  = document.getElementById('venc-7d-range');
     const el30dRange = document.getElementById('venc-30d-range');
 
     if (elHojeDate) elHojeDate.textContent = Utils.formatShortDate(anchor);
-    if (el7dRange)  el7dRange.textContent  = `${Utils.formatShortDate(new Date(anchor.getTime() + 86400000))} → ${Utils.formatShortDate(d7)}`;
-    if (el30dRange) el30dRange.textContent = `${Utils.formatShortDate(new Date(d7.getTime() + 86400000))} → ${Utils.formatShortDate(d30)}`;
+    if (el7dRange)  el7dRange.textContent  = `${Utils.formatShortDate(d1)} → ${Utils.formatShortDate(d7)}`;
+    if (el30dRange) el30dRange.textContent = `${Utils.formatShortDate(d8)} → ${Utils.formatShortDate(d30)}`;
 
     // ── RENDERIZAÇÃO DA TABELA DE SALDOS DIÁRIOS ───────────────────
     const saldosBody = document.getElementById('saldos-table-body');

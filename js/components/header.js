@@ -73,13 +73,19 @@ const HeaderComponent = {
             </div>
           </div>
 
-          <!-- ALTERNADOR DE TEMA -->
+          <!-- ALTERNADOR DE TEMA E SESSÃO -->
           <div class="filter-group filter-group-theme">
-            <span class="filter-label">Tema</span>
-            <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="App.toggleTheme()" title="Alternar entre modo claro e escuro">
-              <span class="theme-icon" id="theme-icon">☀️</span>
-              <span class="theme-text" id="theme-text">Modo Claro</span>
-            </button>
+            <span class="filter-label">Sessão &amp; Tema</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="btn-theme-toggle" id="btn-theme-toggle" onclick="App.toggleTheme()" title="Alternar entre modo claro e escuro">
+                <span class="theme-icon" id="theme-icon">☀️</span>
+                <span class="theme-text" id="theme-text">Modo Claro</span>
+              </button>
+              <button class="btn-auth-logout" id="btn-auth-logout" onclick="AuthComponent.logout()" title="Encerrar sessão e bloquear o dashboard">
+                <span>🚪</span>
+                <span>Sair</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

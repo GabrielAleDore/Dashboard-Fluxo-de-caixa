@@ -7,6 +7,38 @@ const App = {
   init() {
     this.initTheme();
 
+    // Trava de segurança: se não autenticado, bloqueia renderização do dashboard e exibe tela de login
+    if (typeof AuthComponent !== 'undefined' && !AuthComponent.isAuthenticated()) {
+      const dashboard = document.getElementById('dashboard');
+      if (dashboard) dashboard.style.display = 'none';
+      AuthComponent.render(document.getElementById('auth-container'));
+      return;
+    }
+
+    this.startDashboard();
+  },
+
+  onLoginSuccess(user) {
+    if (typeof State !== 'undefined') {
+      State.currentUser = user;
+    }
+    const dashboard = document.getElementById('dashboard');
+    if (dashboard) {
+      dashboard.style.display = 'flex';
+      dashboard.style.opacity = '0';
+      dashboard.style.transition = 'opacity .4s ease';
+      setTimeout(() => { dashboard.style.opacity = '1'; }, 20);
+    }
+    this.startDashboard();
+  },
+
+  startDashboard() {
+    if (typeof AuthComponent !== 'undefined') {
+      State.currentUser = AuthComponent.getCurrentUser();
+    }
+    const dashboard = document.getElementById('dashboard');
+    if (dashboard) dashboard.style.display = 'flex';
+
     if (typeof ChartDataLabels !== 'undefined') {
       Chart.register(ChartDataLabels);
     }
@@ -360,7 +392,13 @@ const App = {
     const toast = document.createElement('div');
     toast.className = `toast-item toast-${type}`;
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
-    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = icon;
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
 
     toastContainer.appendChild(toast);
 
@@ -471,7 +509,6 @@ const App = {
       State.selectedDay = null;
     }
 
-    State.currentPage = 1;
     this.renderAll();
   },
 
@@ -499,7 +536,7 @@ const App = {
   },
 
   resetFilters() {
-    const dates = State.allData.map(r => r.vencimento).sort((a, b) => a - b);
+    const dates = State.allData.map(r => r.vencimento).filter(Boolean).sort((a, b) => a - b);
     if (dates.length) {
       const minDate = dates[0];
       const maxDate = new Date();
@@ -512,16 +549,9 @@ const App = {
     const credSel = document.getElementById('credor-filter');
     if (credSel) credSel.value = '';
 
-    const searchInput = document.getElementById('table-search');
-    if (searchInput) searchInput.value = '';
-
     State.selectedAlertFilter = null;
     State.selectedDay = null;
     State.clearIgnored();
-    State.manualHideSaldo = false;
-
-    const chk = document.getElementById('toggle-hide-saldo');
-    if (chk) chk.checked = false;
 
     AlertsComponent.updateUI();
     this.applyFilters();

@@ -5,6 +5,59 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.8.0] - 2026-10-15
+
+### Adicionado
+- **Módulo de Autenticação Sem Banco de Dados**:
+  - Implementado sistema de proteção de acesso client-side via `AuthConfig` (`js/auth-config.js`) e `AuthComponent` (`js/components/auth.js`).
+  - Hashing criptográfico robusto com sal de aplicação (`bachinski-agro-2026-auth-salt`) via WebCrypto nativo (`crypto.subtle.digest('SHA-256')`).
+  - Proteção anti-força bruta: bloqueio automático temporário (cooldown de 30s) após 5 tentativas consecutivas incorretas.
+  - Persistência inteligente:
+    - Com *"Lembrar meu acesso neste dispositivo"* marcado: sessão persistida em `localStorage`.
+    - Desmarcado: sessão volátil em `sessionStorage` (encerra ao fechar a aba/janela).
+  - Bloqueio completo da API do Google Drive: nenhum dado financeiro é requisitado ou mantido em memória antes de uma autenticação válida.
+  - Botão de logout visual (`"🚪 Sair"`) integrado no `HeaderComponent`.
+- **Interface Agro Dark Glassmorphism para Login (`css/auth.css`)**:
+  - Design temático com glassmorphism, gradientes e identidade visual do Condomínio Bachinski.
+  - Alternador interativo de visibilidade de senha (`👁️` / `🙈`) acessível por teclado.
+  - Animação de tremor horizontal (*shake*) e alerta contextual em caso de erro de credenciais.
+  - Layout totalmente responsivo para desktop e dispositivos móveis.
+- **Ferramenta de Linha de Comando para o Administrador (`scripts/criar_usuario.js`)**:
+  - Script utilitário em Node.js com paridade criptográfica para cadastrar novos usuários e gerar o bloco de configuração pronto para colar em `js/auth-config.js`.
+
+---
+
+## [2.7.2] - 2026-10-15
+
+### Corrigido & Aprimorado
+- **Correção da Lógica das Faixas de Alertas de Vencimento**:
+  - Eliminada sobreposição temporal: títulos com vencimento em "Hoje" (D+0) não são mais duplicados dentro dos "Próximos 7 dias".
+  - Faixas estritamente exclusivas padronizadas por comparação determinística de data `YYYY-MM-DD`:
+    - `🔴 Vencidos`: anteriores a hoje (`< hoje`).
+    - `🟡 Vence Hoje`: data de hoje (D+0).
+    - `🔵 Próximos 7 dias`: D+1 a D+7 (iniciando em amanhã).
+    - `🟢 Próximos 30 dias`: D+8 a D+30.
+- **Proteção contra Falha por Valor Nulo no Reset de Filtros**:
+  - Adicionado `.filter(Boolean)` no mapeamento de datas em `App.resetFilters()`, prevenindo que registros com data nula ou corrompida quebrem a chamada do calendário.
+- **Prevenção de XSS e Quebra de Atributos HTML**:
+  - Implementado `Utils.escapeHtml()` com sanitização estrita de caracteres (`&`, `<`, `>`, `"`, `'`).
+  - Aplicada proteção em todas as renderizações de tabelas, modais e títulos em `TableComponent`.
+  - Mensagens de Toast em `App.showToast()` atualizadas para uso seguro de `textContent`.
+- **Desambiguação e Robustez no Parser Numérico Brasileiro**:
+  - `Utils.parseNum()` agora reconhece corretamente formatos de milhar brasileiro sem decimais (ex: `"1.000"` agora converte para `1000` em vez de `1`).
+- **Sincronização e Higienização de Ponto de Entrada**:
+  - `dashboard.html` atualizado para espelho idêntico de `index.html` com versionamento e cache `?v=2.7.2`.
+- **Redimensionamento Interativo da Altura do Gráfico**:
+  - Implementado listener de ponteiro (`pointerdown`, `pointermove`, `pointerup`) na barra inferior `.chart-drag-handle`, permitindo redimensionar a altura do painel entre 220px e 600px com ajuste instantâneo do Chart.js.
+- **Limpeza de Código Morto e Seletores Órfãos**:
+  - Removidas buscas a `table-search` e `toggle-hide-saldo` em `App.resetFilters()`.
+  - Limpas propriedades não utilizadas em `State` (`manualHideSaldo`, `topN`, `pageSize`, `currentPage`, `chartBarras*`).
+  - Removida variável órfã `ignoredCount` em `KpiCardsComponent`.
+- **Google Apps Script Defensivo**:
+  - Adicionada verificação `!file.isTrashed()` para desconsiderar arquivos CSV na lixeira do Google Drive e proteção contra leitura nula de `ajustes_financeiros.json`.
+
+---
+
 ## [2.7.1] - 2026-10-08
 
 ### Adicionado / Corrigido

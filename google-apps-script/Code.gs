@@ -25,12 +25,12 @@ function getAjustesData(folder) {
     const file = files.next();
     try {
       const content = file.getBlob().getDataAsString('UTF-8');
-      const data = JSON.parse(content);
+      const data = JSON.parse(content) || {};
       return {
         file: file,
         data: {
-          dateOverrides: data.dateOverrides || {},
-          manualEntries: data.manualEntries || []
+          dateOverrides: (data && data.dateOverrides) ? data.dateOverrides : {},
+          manualEntries: (data && Array.isArray(data.manualEntries)) ? data.manualEntries : []
         }
       };
     } catch (e) {
@@ -76,7 +76,7 @@ function doGet(e) {
       const file = files.next();
       const fileName = file.getName().toLowerCase();
 
-      if (fileName.endsWith('.csv')) {
+      if (!file.isTrashed() && fileName.endsWith('.csv')) {
         const fileUpdated = file.getLastUpdated();
         if (fileUpdated > latestUpdated) {
           latestUpdated = fileUpdated;

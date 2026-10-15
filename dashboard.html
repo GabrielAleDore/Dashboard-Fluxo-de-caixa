@@ -20,15 +20,19 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <!-- Módulos de Estilo CSS (com cache busting) -->
-  <link rel="stylesheet" href="css/main.css?v=2.7">
-  <link rel="stylesheet" href="css/header.css?v=2.7">
-  <link rel="stylesheet" href="css/kpis.css?v=2.7">
-  <link rel="stylesheet" href="css/charts.css?v=2.7">
-  <link rel="stylesheet" href="css/alerts.css?v=2.7">
-  <link rel="stylesheet" href="css/table.css?v=2.7">
+  <link rel="stylesheet" href="css/main.css?v=2.8.0">
+  <link rel="stylesheet" href="css/auth.css?v=2.8.0">
+  <link rel="stylesheet" href="css/header.css?v=2.8.0">
+  <link rel="stylesheet" href="css/kpis.css?v=2.8.0">
+  <link rel="stylesheet" href="css/charts.css?v=2.8.0">
+  <link rel="stylesheet" href="css/alerts.css?v=2.8.0">
+  <link rel="stylesheet" href="css/table.css?v=2.8.0">
 </head>
 
 <body>
+
+  <!-- CONTAINER DE AUTENTICAÇÃO (TELA DE LOGIN SEM BANCO DE DADOS) -->
+  <div id="auth-container"></div>
 
   <!-- BARRA DE PROGRESSO DE CARREGAMENTO -->
   <div class="loading-bar" id="loading-bar" style="width:0"></div>
@@ -62,21 +66,23 @@
       </div>
       <div class="footer-version" title="Versão Semântica do Sistema">
         <span class="version-dot"></span>
-        <span id="footer-version-text">Versão 2.6.0</span>
+        <span id="footer-version-text">Versão 2.8.0</span>
       </div>
     </footer>
   </div>
 
   <!-- SCRIPTS MODULARES (com cache busting) -->
-  <script src="js/utils.js?v=2.8"></script>
-  <script src="js/state.js?v=2.8"></script>
-  <script src="js/components/header.js?v=2.8"></script>
-  <script src="js/components/kpi-cards.js?v=2.8"></script>
-  <script src="js/components/charts.js?v=2.8"></script>
-  <script src="js/components/alerts.js?v=2.8"></script>
-  <script src="js/components/table.js?v=2.8"></script>
-  <script src="js/csv-parser.js?v=2.8"></script>
-  <script src="js/app.js?v=2.8"></script>
+  <script src="js/auth-config.js?v=2.8.0"></script>
+  <script src="js/utils.js?v=2.8.0"></script>
+  <script src="js/state.js?v=2.8.0"></script>
+  <script src="js/components/auth.js?v=2.8.0"></script>
+  <script src="js/components/header.js?v=2.8.0"></script>
+  <script src="js/components/kpi-cards.js?v=2.8.0"></script>
+  <script src="js/components/charts.js?v=2.8.0"></script>
+  <script src="js/components/alerts.js?v=2.8.0"></script>
+  <script src="js/components/table.js?v=2.8.0"></script>
+  <script src="js/csv-parser.js?v=2.8.0"></script>
+  <script src="js/app.js?v=2.8.0"></script>
 
 </body>
 

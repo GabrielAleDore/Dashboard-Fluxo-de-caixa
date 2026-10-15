@@ -194,7 +194,7 @@ const TableComponent = {
     let reprogrammedBadge = '';
     if (r.isReprogrammed) {
       const origDateStr = r.originalVencimento ? Utils.formatDateBR(r.originalVencimento) : '';
-      reprogrammedBadge = `<span class="reprogrammed-badge" title="Data original: ${origDateStr}">Reprogramado</span>`;
+      reprogrammedBadge = `<span class="reprogrammed-badge" title="Data original: ${Utils.escapeHtml(origDateStr)}">Reprogramado</span>`;
     }
 
     let manualBadge = '';
@@ -202,25 +202,32 @@ const TableComponent = {
       manualBadge = `<span class="manual-badge" title="Lançamento manual incluído na aplicação">Manual</span>`;
     }
 
+    const safeId = Utils.escapeHtml(r.id);
+    const safeParcela = Utils.escapeHtml(r.parcela || '—');
+    const safeParcelaTitle = Utils.escapeHtml(r.parcela || '');
+    const safeCredor = Utils.escapeHtml(r.credor || '');
+    const safeHistorico = Utils.escapeHtml(r.historico || '—');
+    const safeHistoricoTitle = Utils.escapeHtml(r.historico || '');
+
     return `
-      <tr class="${isIgnored ? 'mov-row-ignored' : ''}" onclick="TableComponent.toggleIgnore('${r.id}')" title="${rowTitle}">
+      <tr class="${isIgnored ? 'mov-row-ignored' : ''}" onclick="TableComponent.toggleIgnore('${safeId}')" title="${rowTitle}">
         <td class="td-documento">
           <div class="doc-cell-content">
-            <button class="btn-edit-date" onclick="event.stopPropagation(); TableComponent.openEditDateModal('${r.id}')" title="Reprogramar data de vencimento">
+            <button class="btn-edit-date" onclick="event.stopPropagation(); TableComponent.openEditDateModal('${safeId}')" title="Reprogramar data de vencimento">
               ✏️
             </button>
             ${r.isManual ? `
-              <button class="btn-delete-entry" onclick="event.stopPropagation(); TableComponent.confirmDeleteManualEntry('${r.id}')" title="Excluir este lançamento manual">
+              <button class="btn-delete-entry" onclick="event.stopPropagation(); TableComponent.confirmDeleteManualEntry('${safeId}')" title="Excluir este lançamento manual">
                 🗑️
               </button>
             ` : ''}
-            <span class="doc-text" title="${r.parcela}">${r.parcela || '—'}</span>
+            <span class="doc-text" title="${safeParcelaTitle}">${safeParcela}</span>
             ${isIgnored ? '<span class="mov-ignored-tag">Inativado</span>' : ''}
             ${manualBadge}
           </div>
         </td>
-        <td class="bold td-favorecido" title="${r.credor}">${r.credor}</td>
-        <td class="historico td-historico" title="${r.historico}">${r.historico || '—'}</td>
+        <td class="bold td-favorecido" title="${safeCredor}">${safeCredor}</td>
+        <td class="historico td-historico" title="${safeHistoricoTitle}">${safeHistorico}</td>
         <td class="td-vencimento">
           <div class="venc-cell-content">
             <span class="venc-date-text">${Utils.formatDateBR(r.vencimento)}</span>
@@ -242,6 +249,10 @@ const TableComponent = {
 
     const currentVencStr = Utils.toInputDate(record.vencimento);
     const origVencStr = record.originalVencimento ? Utils.formatDateBR(record.originalVencimento) : Utils.formatDateBR(record.vencimento);
+    const safeId = Utils.escapeHtml(record.id);
+    const safeCredor = Utils.escapeHtml(record.credor);
+    const safeParcela = Utils.escapeHtml(record.parcela || '—');
+    const safeOrigVencStr = Utils.escapeHtml(origVencStr);
 
     modalContainer.innerHTML = `
       <div class="modal-overlay" onclick="TableComponent.closeModal(event)">
@@ -253,15 +264,15 @@ const TableComponent = {
           <div class="modal-body">
             <div class="modal-info-group">
               <label>Favorecido:</label>
-              <div class="modal-static-val bold">${record.credor}</div>
+              <div class="modal-static-val bold">${safeCredor}</div>
             </div>
             <div class="modal-info-group">
               <label>Documento / Parcela:</label>
-              <div class="modal-static-val">${record.parcela || '—'}</div>
+              <div class="modal-static-val">${safeParcela}</div>
             </div>
             <div class="modal-info-group">
               <label>Data de Vencimento Original:</label>
-              <div class="modal-static-val" style="color:var(--gray);">${origVencStr}</div>
+              <div class="modal-static-val" style="color:var(--gray);">${safeOrigVencStr}</div>
             </div>
             <div class="modal-form-group">
               <label for="edit-vencimento-input">Nova Data de Vencimento:</label>
@@ -270,7 +281,7 @@ const TableComponent = {
           </div>
           <div class="modal-footer">
             <button class="btn-modal-cancel" onclick="TableComponent.closeModal()">Cancelar</button>
-            <button class="btn-modal-save" onclick="TableComponent.saveEditedDate('${record.id}')">💾 Salvar Alteração</button>
+            <button class="btn-modal-save" onclick="TableComponent.saveEditedDate('${safeId}')">💾 Salvar Alteração</button>
           </div>
         </div>
       </div>
@@ -422,6 +433,10 @@ const TableComponent = {
     const tipoLabel = isReceber ? 'Contas a Receber (Entrada)' : 'Contas a Pagar (Saída)';
     const vencStr = Utils.formatDateBR(record.vencimento);
 
+    const safeId = Utils.escapeHtml(recordId);
+    const safeCredor = Utils.escapeHtml(record.credor);
+    const safeParcela = Utils.escapeHtml(record.parcela || '—');
+
     modalContainer.innerHTML = `
       <div class="modal-overlay" onclick="TableComponent.closeModal(event)">
         <div class="modal-box modal-box-confirm" onclick="event.stopPropagation()">
@@ -440,11 +455,11 @@ const TableComponent = {
               </div>
               <div class="modal-confirm-row">
                 <span class="lbl">Favorecido:</span>
-                <strong>${record.credor}</strong>
+                <strong>${safeCredor}</strong>
               </div>
               <div class="modal-confirm-row">
                 <span class="lbl">Documento:</span>
-                <span>${record.parcela || '—'}</span>
+                <span>${safeParcela}</span>
               </div>
               <div class="modal-confirm-row">
                 <span class="lbl">Vencimento:</span>
@@ -461,7 +476,7 @@ const TableComponent = {
           </div>
           <div class="modal-footer">
             <button type="button" class="btn-modal-cancel" onclick="TableComponent.closeModal()">Cancelar</button>
-            <button type="button" class="btn-modal-delete-confirm" onclick="TableComponent.executeDeleteManualEntry('${recordId}')">
+            <button type="button" class="btn-modal-delete-confirm" onclick="TableComponent.executeDeleteManualEntry('${safeId}')">
               🗑️ Excluir Definitivamente
             </button>
           </div>

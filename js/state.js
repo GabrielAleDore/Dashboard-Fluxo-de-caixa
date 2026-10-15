@@ -4,12 +4,10 @@
  */
 
 const State = {
-  version: '2.7.1',
+  version: '2.8.0',
+  currentUser: null,
   allData: [],
   filteredData: [],
-  currentPage: 1,
-  pageSize: 15,
-  topN: 10,
 
   // Metadados de integração com o Google Drive e saúde do arquivo
   driveApiUrl: (() => {
@@ -74,14 +72,11 @@ const State = {
   selectedCredor: '',
   selectedAlertFilter: null, // 'vencido' | 'hoje' | '7d' | '30d' | null
   selectedDay: null,          // 'YYYY-MM-DD' | null (dia selecionado na tabela de saldos)
-  manualHideSaldo: false,
 
   // Cores personalizáveis e tema (persistidos no localStorage)
   theme: localStorage.getItem('fc_theme') || 'dark', // 'dark' | 'light'
   chartColunasColor: localStorage.getItem('fc_colunas_color') || '#E74C3C',
-  chartBarrasColor: localStorage.getItem('fc_barras_color') || '#F39C12',
 
   // Instâncias dos gráficos Chart.js
-  chartColunasInstance: null,
-  chartBarrasInstance: null
+  chartColunasInstance: null
 };
