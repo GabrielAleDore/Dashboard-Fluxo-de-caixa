@@ -1,5 +1,5 @@
 /**
- * GERENCIADOR DE SENHAS E USUÁRIOS
+ * GERENCIADOR AUTOMÁTICO DE SENHAS E USUÁRIOS
  * Condomínio Agrícola Familiar Bachinski — Gestão Financeira
  * 
  * Comandos disponíveis:
@@ -9,8 +9,11 @@
  *   2. Conferir/Testar se uma senha está correta:
  *      node scripts/gerenciar_senhas.js conferir <usuario> <senha>
  * 
- *   3. Gerar hash para alterar ou cadastrar senha:
+ *   3. Alterar a senha de um usuário AUTOMATICAMENTE no arquivo js/auth-config.js:
  *      node scripts/gerenciar_senhas.js alterar <usuario> <nova_senha>
+ * 
+ *   4. Criar um novo usuário AUTOMATICAMENTE no arquivo js/auth-config.js:
+ *      node scripts/gerenciar_senhas.js criar <usuario> <senha> "[Nome Completo]" [role]
  */
 
 const fs = require('fs');
@@ -19,19 +22,24 @@ const crypto = require('crypto');
 
 const AUTH_CONFIG_PATH = path.join(__dirname, '..', 'js', 'auth-config.js');
 
-function carregarConfig() {
+function carregarArquivo() {
   if (!fs.existsSync(AUTH_CONFIG_PATH)) {
     console.error(`❌ Arquivo não encontrado: ${AUTH_CONFIG_PATH}`);
     process.exit(1);
   }
+  return fs.readFileSync(AUTH_CONFIG_PATH, 'utf-8');
+}
 
-  const content = fs.readFileSync(AUTH_CONFIG_PATH, 'utf-8');
-  
-  // Extrai o salt
+function salvarArquivo(novoConteudo) {
+  fs.writeFileSync(AUTH_CONFIG_PATH, novoConteudo, 'utf-8');
+}
+
+function extrairSalt(content) {
   const saltMatch = content.match(/salt:\s*['"]([^'"]+)['"]/);
-  const salt = saltMatch ? saltMatch[1] : 'bachinski-agro-2026-auth-salt';
+  return saltMatch ? saltMatch[1] : 'bachinski-agro-2026-auth-salt';
+}
 
-  // Extrai os usuários via regex simples
+function extrairUsuarios(content) {
   const users = [];
   const userRegex = /{\s*username:\s*['"]([^'"]+)['"],\s*displayName:\s*['"]([^'"]+)['"],\s*role:\s*['"]([^'"]+)['"],(?:[^}]+?)passwordHash:\s*['"]([^'"]+)['"]/gs;
   
@@ -44,8 +52,7 @@ function carregarConfig() {
       passwordHash: match[4]
     });
   }
-
-  return { salt, users, content };
+  return users;
 }
 
 function calcularHash(salt, senha) {
@@ -56,11 +63,14 @@ const args = process.argv.slice(2);
 const comando = (args[0] || '').toLowerCase();
 
 console.log('===============================================================');
-console.log('🌾 Gerenciador de Acessos & Senhas — Bachinski Gestão Financeira');
+console.log('🌾 Gerenciador Automático de Acessos — Bachinski Gestão Financeira');
 console.log('===============================================================');
 
-const { salt, users, content } = carregarConfig();
+let content = carregarArquivo();
+const salt = extrairSalt(content);
+const users = extrairUsuarios(content);
 
+// 1. LISTAR
 if (comando === 'listar') {
   console.log(`\n🔑 Sal da aplicação: ${salt}`);
   console.log(`📋 Total de usuários cadastrados: ${users.length}\n`);
@@ -75,19 +85,20 @@ if (comando === 'listar') {
   process.exit(0);
 }
 
+// 2. CONFERIR / TESTAR
 if (comando === 'conferir' || comando === 'testar') {
   const usuario = (args[1] || '').trim().toLowerCase();
   const senha = args[2];
 
   if (!usuario || senha === undefined) {
     console.log('\nUso:');
-    console.log('  node scripts/gerenciar_senhas.js conferir <usuario> <senha_para_testar>\n');
+    console.log('  node scripts/gerenciar_senhas.js conferir <usuario> <senha>\n');
     process.exit(1);
   }
 
   const user = users.find(u => u.username.toLowerCase() === usuario);
   if (!user) {
-    console.log(`\n❌ Usuário "${usuario}" não foi encontrado no arquivo js/auth-config.js.`);
+    console.log(`\n❌ Usuário "${usuario}" não foi encontrado em js/auth-config.js.`);
     console.log('   Usuários disponíveis:', users.map(u => u.username).join(', '));
     process.exit(1);
   }
@@ -97,12 +108,12 @@ if (comando === 'conferir' || comando === 'testar') {
     console.log(`\n✅ SUCESSO! A senha digitada está CORRETA para "${user.displayName}" (${user.username}).`);
   } else {
     console.log(`\n❌ SENHA INCORRETA para "${user.displayName}" (${user.username}).`);
-    console.log('   O hash gerado não confere com o cadastrado.');
   }
   process.exit(0);
 }
 
-if (comando === 'alterar' || comando === 'gerar') {
+// 3. ALTERAR SENHA AUTOMATICAMENTE
+if (comando === 'alterar') {
   const usuario = (args[1] || '').trim().toLowerCase();
   const novaSenha = args[2];
 
@@ -110,38 +121,102 @@ if (comando === 'alterar' || comando === 'gerar') {
     console.log('\nUso:');
     console.log('  node scripts/gerenciar_senhas.js alterar <usuario> <nova_senha>\n');
     console.log('Exemplo:');
-    console.log('  node scripts/gerenciar_senhas.js alterar admin MinhaNovaSenha123\n');
+    console.log('  node scripts/gerenciar_senhas.js alterar alan.diligence MinhaNovaSenha123\n');
+    process.exit(1);
+  }
+
+  const user = users.find(u => u.username.toLowerCase() === usuario);
+  if (!user) {
+    console.log(`\n❌ Usuário "${usuario}" não foi encontrado para alteração.`);
+    console.log('   Para criar um novo usuário, use:');
+    console.log(`   node scripts/gerenciar_senhas.js criar ${usuario} ${novaSenha} "${usuario}"\n`);
     process.exit(1);
   }
 
   const novoHash = calcularHash(salt, novaSenha);
-  console.log(`\n🔐 Nova senha definida para: ${usuario}`);
-  console.log(`🔑 Novo PasswordHash:`);
-  console.log(`   ${novoHash}\n`);
 
-  const user = users.find(u => u.username.toLowerCase() === usuario);
-  if (user) {
-    console.log(`👉 Para atualizar o usuário existente "${usuario}" no arquivo js/auth-config.js:`);
-    console.log(`   Substitua o passwordHash antigo pelo novo:`);
-    console.log(`   passwordHash: '${novoHash}'\n`);
-  } else {
-    console.log(`👉 Usuário novo! Adicione este bloco no array users em js/auth-config.js:`);
-    console.log(`    {`);
-    console.log(`      username: '${usuario}',`);
-    console.log(`      displayName: '${usuario}',`);
-    console.log(`      role: 'user',`);
-    console.log(`      passwordHash: '${novoHash}',`);
-    console.log(`      createdAt: '${new Date().toISOString().slice(0, 10)}'`);
-    console.log(`    },\n`);
+  // Expressão regular para substituir o passwordHash do bloco deste usuário específico
+  const userBlockRegex = new RegExp(
+    `({\\s*username:\\s*['"]${usuario}['"][\\s\\S]*?passwordHash:\\s*['"])([^'"]+)(['"])`,
+    'i'
+  );
+
+  if (!userBlockRegex.test(content)) {
+    console.error(`❌ Não foi possível localizar o bloco do usuário "${usuario}" no arquivo.`);
+    process.exit(1);
   }
+
+  const novoConteudo = content.replace(userBlockRegex, `$1${novoHash}$3`);
+  salvarArquivo(novoConteudo);
+
+  console.log(`\n✅ SENHA ALTERADA COM SUCESSO NO ARQUIVO AUTOMATICAMENTE!`);
+  console.log(`👤 Usuário:      ${user.displayName} (${user.username})`);
+  console.log(`🔑 Novo Hash:     ${novoHash.slice(0, 24)}...`);
+  console.log(`📁 Arquivo salvo: js/auth-config.js\n`);
   process.exit(0);
 }
 
-// Se não passou comando válido
+// 4. CRIAR NOVO USUÁRIO AUTOMATICAMENTE
+if (comando === 'criar' || comando === 'adicionar') {
+  const usuario = (args[1] || '').trim().toLowerCase();
+  const senha = args[2];
+  const displayName = args[3] ? args[3].trim() : usuario;
+  const role = (args[4] || 'user').trim().toLowerCase();
+
+  if (!usuario || !senha) {
+    console.log('\nUso:');
+    console.log('  node scripts/gerenciar_senhas.js criar <usuario> <senha> "[Nome Completo]" [role]\n');
+    console.log('Exemplo:');
+    console.log('  node scripts/gerenciar_senhas.js criar maria.silva 123456 "Maria Silva" user\n');
+    process.exit(1);
+  }
+
+  const userExiste = users.find(u => u.username.toLowerCase() === usuario);
+  if (userExiste) {
+    console.log(`\n⚠️ O usuário "${usuario}" já existe!`);
+    console.log(`   Para alterar a senha dele, use:`);
+    console.log(`   node scripts/gerenciar_senhas.js alterar ${usuario} ${senha}\n`);
+    process.exit(1);
+  }
+
+  const novoHash = calcularHash(salt, senha);
+  const dataHoje = new Date().toISOString().slice(0, 10);
+
+  const novoBlocoUsuario = `    {
+      username: '${usuario}',
+      displayName: '${displayName}',
+      role: '${role}',
+      passwordHash: '${novoHash}',
+      createdAt: '${dataHoje}'
+    },
+  ];`;
+
+  // Substitui o final do array `users: [ ... ]`
+  const fechamentoArrayRegex = /(\s*)\]\s*;\s*};/s;
+  if (!fechamentoArrayRegex.test(content)) {
+    console.error('❌ Não foi possível localizar o fechamento do array users em js/auth-config.js.');
+    process.exit(1);
+  }
+
+  const novoConteudo = content.replace(fechamentoArrayRegex, `\n${novoBlocoUsuario}\n};`);
+  salvarArquivo(novoConteudo);
+
+  console.log(`\n✅ NOVO USUÁRIO CRIADO E SALVO AUTOMATICAMENTE!`);
+  console.log(`👤 Usuário:      ${usuario}`);
+  console.log(`🏷️ Nome:         ${displayName}`);
+  console.log(`🛡️ Perfil:       ${role}`);
+  console.log(`🔑 Hash Gerado:  ${novoHash.slice(0, 24)}...`);
+  console.log(`📁 Arquivo salvo: js/auth-config.js\n`);
+  process.exit(0);
+}
+
+// AJUDA
 console.log('\nComandos disponíveis:\n');
 console.log('1. Listar usuários cadastrados:');
 console.log('   node scripts/gerenciar_senhas.js listar\n');
-console.log('2. Conferir/Testar se você sabe a senha atual:');
+console.log('2. Conferir/Testar senha:');
 console.log('   node scripts/gerenciar_senhas.js conferir <usuario> <senha>\n');
-console.log('3. Gerar hash para alterar ou definir nova senha:');
+console.log('3. Alterar senha AUTOMATICAMENTE no arquivo:');
 console.log('   node scripts/gerenciar_senhas.js alterar <usuario> <nova_senha>\n');
+console.log('4. Criar novo usuário AUTOMATICAMENTE no arquivo:');
+console.log('   node scripts/gerenciar_senhas.js criar <usuario> <senha> "[Nome]" [admin|user]\n');
