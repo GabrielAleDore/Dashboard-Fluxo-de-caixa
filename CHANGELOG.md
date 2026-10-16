@@ -5,6 +5,26 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 e este projeto adere ao [Versionamento Semântico (SemVer)](https://semver.org/lang/pt-BR/).
 
+## [2.9.0] - 2026-10-16
+
+### Adicionado
+- **Ingestão Contínua 100% Nuvem via Google Apps Script (UrlFetchApp)**:
+  - Implementada função `atualizarBaseDoLink()` que baixa o arquivo CSV mais recente diretamente da URL do ERP/SWRural na nuvem.
+  - Implementada rotina `rotinaAtualizacaoHoraria()` para execução autônoma 24/7 a cada 1 hora via Time-driven Trigger do Google Apps Script.
+  - Sincronização sob demanda: clique no botão `"↻ Sincronizar"` no cabeçalho envia `?forceDownload=true`, acionando o download imediato da base e atualização em tempo real.
+  - Política de limpeza e retenção automática: mantém os 10 arquivos CSV mais recentes na pasta do Google Drive e expurga os anteriores para a lixeira.
+- **Proteção e Sigilo de Credenciais (API Key & ScriptProperties)**:
+  - O link direto de download (`CSV_DOWNLOAD_URL`) e a chave de acesso (`API_KEY`) ficam confinados nas propriedades secretas do script (`ScriptProperties`).
+  - O Web App do Apps Script valida obrigatoriamente a `API_KEY` nos endpoints `doGet` e `doPost`, rejeitando chamadas não autorizadas (`HTTP 403`).
+- **Resiliência e Tolerância a Falhas (Modo de Contingência Offline-First)**:
+  - Implementado snapshot de cache local em `localStorage` (`fc_contingency_cache`) a cada sincronização bem-sucedida.
+  - Em caso de falha de conexão ou instabilidade da nuvem, o dashboard ativa automaticamente o `App.loadContingencyCache()`, operando com a última base salva.
+  - Badge de status no cabeçalho atualizado com suporte ao estado visual `🛡️ Modo Offline (Cache Local)`.
+- **Estratégia de Branches por Versão e Deploy Cloudflare Pages**:
+  - Implementada branch dedicada `v2.9.0` com suporte a deploy contínuo em repositório privado no Cloudflare Pages.
+
+---
+
 ## [2.8.0] - 2026-10-15
 
 ### Adicionado

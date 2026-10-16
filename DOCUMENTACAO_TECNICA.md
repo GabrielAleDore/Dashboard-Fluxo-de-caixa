@@ -10,8 +10,8 @@
 - **Stack Principal**: HTML5, CSS3 Moderno (Vanilla com CSS Variables), JavaScript ES6+ (Sem frameworks pesados)
 - **Bibliotecas Externas**: PapaParse v5.4.1, Chart.js v4.4.0, ChartDataLabels v2.2.0, Google Fonts (Inter & Roboto Mono)
 - **Persistência**: LocalStorage (Configurações visuais, preferências de tema e paleta de cores)
-- **Versionamento**: SemVer 2.0.0 (`v2.8.0`), documentado em `CHANGELOG.md`
-- **Mecanismo de Cache**: Versionamento de query string (`?v=2.8.0`)
+- **Versionamento**: SemVer 2.0.0 (`v2.9.0`), documentado em `CHANGELOG.md`
+- **Mecanismo de Cache**: Versionamento de query string (`?v=2.9.0`)
 
 ---
 

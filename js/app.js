@@ -100,7 +100,11 @@ const App = {
     try {
       const url = new URL(State.driveApiUrl);
       url.searchParams.set('_t', Date.now().toString());
+      if (State.apiKey) {
+        url.searchParams.set('apiKey', State.apiKey);
+      }
       if (force) {
+        url.searchParams.set('forceDownload', 'true');
         url.searchParams.set('force', 'true');
       }
       const requestUrl = url.toString();
@@ -132,6 +136,9 @@ const App = {
       const hoursLag = Math.floor(diffMs / (1000 * 60 * 60));
       const daysLag = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
+      State.isContingencyMode = false;
+      State.lastSuccessfulSync = new Date();
+
       State.fileMetadata = {
         fileName: json.fileName,
         lastModified: fileDate,
@@ -142,6 +149,16 @@ const App = {
         isForced: force,
         errorMessage: null
       };
+
+      // Persiste snapshot no cache local para tolerância a falhas (Modo de Contingência)
+      try {
+        localStorage.setItem('fc_contingency_cache', JSON.stringify({
+          cachedAt: new Date().toISOString(),
+          data: json
+        }));
+      } catch (storageErr) {
+        console.warn('Aviso: falha ao gravar cache de contingência:', storageErr);
+      }
 
       // Ingestão dos ajustes persistidos na nuvem
       State.dateOverrides = json.dateOverrides || {};
@@ -195,17 +212,102 @@ const App = {
 
     } catch (err) {
       console.error('Erro na sincronização com Google Drive / SWRural:', err);
-      State.fileMetadata.syncStatus = 'error';
-      State.fileMetadata.errorMessage = err.message;
 
-      if (bar) bar.style.width = '0';
-      HeaderComponent.updateSyncBadge();
+      // Tenta recuperar do cache local offline de contingência
+      const recovered = this.loadContingencyCache(err.message);
+      if (!recovered) {
+        State.fileMetadata.syncStatus = 'error';
+        State.fileMetadata.errorMessage = err.message;
+        if (bar) bar.style.width = '0';
+        HeaderComponent.updateSyncBadge();
+      }
     } finally {
       // Reativa o botão de sincronização e repõe o cursor normal
       if (syncBtn) {
         syncBtn.disabled = false;
       }
       document.body.style.cursor = 'default';
+    }
+  },
+
+  /**
+   * Recupera a base a partir do cache local de contingência em caso de falha de conexão
+   */
+  loadContingencyCache(originalError = '') {
+    try {
+      const raw = localStorage.getItem('fc_contingency_cache');
+      if (!raw) return false;
+
+      const cache = JSON.parse(raw);
+      if (!cache || !cache.data || !cache.data.csvData) return false;
+
+      const json = cache.data;
+      const fileDate = json.lastModified ? new Date(json.lastModified) : new Date(cache.cachedAt);
+
+      State.isContingencyMode = true;
+      State.fileMetadata = {
+        fileName: json.fileName || 'Base em Cache Local',
+        lastModified: fileDate,
+        isOutdated: true,
+        hoursLag: 1,
+        daysLag: 0,
+        syncStatus: 'contingency',
+        isForced: false,
+        errorMessage: originalError
+      };
+
+      State.dateOverrides = json.dateOverrides || {};
+      State.manualEntries = json.manualEntries || [];
+
+      const parsedCsvData = CsvParser.parse(json.csvData);
+      parsedCsvData.forEach(row => {
+        if (State.dateOverrides[row.id]) {
+          const overriddenDate = Utils.parseDate(State.dateOverrides[row.id]);
+          if (overriddenDate) {
+            row.vencimento = overriddenDate;
+            row.isReprogrammed = true;
+          }
+        }
+      });
+
+      const manualParsed = State.manualEntries.map(m => {
+        const venc = State.dateOverrides[m.id] ? Utils.parseDate(State.dateOverrides[m.id]) : Utils.parseDate(m.vencimento);
+        const emissao = m.emissao ? Utils.parseDate(m.emissao) : new Date();
+        return {
+          id: m.id,
+          parcela: m.parcela || 'MANUAL',
+          emissao,
+          originalVencimento: Utils.parseDate(m.vencimento),
+          vencimento: venc,
+          credor: m.credor || '',
+          historico: m.historico || '',
+          entrada: Number(m.entrada) || 0,
+          saida: Number(m.saida) || 0,
+          saldo: Number(m.saldo) || 0,
+          liquido: (Number(m.entrada) || 0) - (Number(m.saida) || 0),
+          isReprogrammed: !!State.dateOverrides[m.id],
+          isManual: true
+        };
+      });
+
+      const combinedData = [...parsedCsvData, ...manualParsed];
+      this.loadData(combinedData);
+
+      const bar = document.getElementById('loading-bar');
+      if (bar) {
+        bar.style.width = '100%';
+        setTimeout(() => { bar.style.width = '0'; }, 500);
+      }
+
+      HeaderComponent.updateSyncBadge();
+
+      const horaStr = fileDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      this.showToast(`Nuvem temporariamente inacessível. Operando em Modo de Contingência (base local de ${horaStr}).`, 'warning');
+      return true;
+
+    } catch (e) {
+      console.error('Falha ao processar cache de contingência:', e);
+      return false;
     }
   },
 
@@ -239,6 +341,7 @@ const App = {
         // Evita CORS preflight usando text/plain
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
+          apiKey: State.apiKey,
           action: 'SAVE_DATE_OVERRIDE',
           payload: {
             id: recordId,
@@ -313,6 +416,7 @@ const App = {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
+          apiKey: State.apiKey,
           action: 'ADD_MANUAL_ENTRY',
           payload: payloadBackend
         }),
@@ -357,6 +461,7 @@ const App = {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
+          apiKey: State.apiKey,
           action: 'DELETE_MANUAL_ENTRY',
           payload: { id: recordId }
         }),

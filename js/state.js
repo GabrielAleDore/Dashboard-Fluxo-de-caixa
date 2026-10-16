@@ -4,10 +4,19 @@
  */
 
 const State = {
-  version: '2.8.0',
+  version: '2.9.0',
   currentUser: null,
   allData: [],
   filteredData: [],
+
+  // Chave de segurança para o endpoint do Google Apps Script
+  apiKey: (() => {
+    return localStorage.getItem('fc_api_key') || 'bachinski-agro-2026-auth-salt';
+  })(),
+
+  // Modo de contingência (ativa quando opera a partir do cache local por instabilidade da nuvem)
+  isContingencyMode: false,
+  lastSuccessfulSync: null,
 
   // Metadados de integração com o Google Drive e saúde do arquivo
   driveApiUrl: (() => {
@@ -25,7 +34,7 @@ const State = {
     isOutdated: false,
     daysLag: 0,
     hoursLag: 0,
-    syncStatus: 'idle', // 'idle' | 'loading' | 'success' | 'error'
+    syncStatus: 'idle', // 'idle' | 'loading' | 'success' | 'contingency' | 'error'
     isForced: false,
     errorMessage: null
   },

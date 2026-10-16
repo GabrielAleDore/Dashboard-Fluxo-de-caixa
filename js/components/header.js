@@ -141,6 +141,19 @@ const HeaderComponent = {
       return;
     }
 
+    if (meta.syncStatus === 'contingency' || State.isContingencyMode) {
+      badge.classList.add('contingency');
+      const dateStr = meta.lastModified ? meta.lastModified.toLocaleDateString('pt-BR') : '';
+      const timeStr = meta.lastModified ? meta.lastModified.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+      const fileNameStr = meta.fileName || 'Cache Local';
+      badge.title = `Modo de Contingência: Nuvem temporariamente inacessível. Operando com base salva localmente em ${dateStr} às ${timeStr}. Arquivo: ${fileNameStr}.`;
+      badge.innerHTML = `
+        <span class="sync-badge-icon">🛡️</span>
+        <span class="sync-badge-text">Modo Offline (Cache: ${timeStr || 'Local'})</span>
+      `;
+      return;
+    }
+
     if (meta.syncStatus === 'success' && meta.lastModified) {
       const now = new Date();
       const diffMs = Math.max(0, now - meta.lastModified);
