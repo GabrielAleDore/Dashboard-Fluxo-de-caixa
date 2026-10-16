@@ -40,6 +40,13 @@ const AuthConfig = {
       role: 'user',
       passwordHash: 'f267f76c41be16d6477d7682574539e80300457246398efb245b5dc376e23608',
       createdAt: '2026-10-15'
-    }
+    },
+    {
+      username: 'alan.diligence',
+      displayName: 'Alan da Costa',
+      role: 'user',
+      passwordHash: '4776718e46b03d34482b23891ba22674f4266b77f7b7751a663a6d1e68e0765c',
+      createdAt: '2026-10-16'
+    },
   ]
 };
