@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fluxo-de-caixa",
+  "compatibility_date": "2024-09-23",
+  "assets": {
+    "directory": "."
+  },
+  "previews": {}
+}
